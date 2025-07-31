@@ -1,0 +1,34 @@
+* Sea-Bird SBE 9 Data File:
+* FileName = D:\ctd\raw\EN719_CTD02.hdr
+* Software Version Seasave V 7.26.7.121
+* Temperature SN = 4333
+* Conductivity SN = 0864
+* Number of Bytes Per Scan = 37
+* Number of Voltage Words = 4
+* Number of Scans Averaged by the Deck Unit = 1
+* System UpLoad Time = Jul 11 2024 18:38:23
+* NMEA Latitude = 38 45.76 N
+* NMEA Longitude = 063 44.17 W
+* NMEA UTC (Time) = Jul 11 2024  18:38:19
+* Store Lat/Lon Data = Append to Every Scan
+* SBE 11plus V 5.2
+* number of scans to average = 1
+* pressure baud rate = 9600
+* NMEA baud rate = 4800
+* Latitude/Longitude added to scan
+* GPIB address = 1
+* advance primary conductivity  0.073 seconds
+* autorun on power up is disabled
+* S>
+** Ship: R/V Endeavor 
+** Cruise: EN719 
+** Principal Investigator: Chad Smith 
+** Chief Scientist: Chad Smith 
+** Project: NESMA24 
+** Cruise Start Date: 7 July 2024 
+** Ports: GSO, Narragansett RI to GSO, Narragansett RI 
+** Station:  CTD_02
+** Bottom Depth: 4516
+** Operator:  LGB
+* System UTC = Jul 11 2024 18:38:23
+*END*

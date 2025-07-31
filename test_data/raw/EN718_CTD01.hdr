@@ -1,0 +1,35 @@
+* Sea-Bird SBE 9 Data File:
+* FileName = D:\ctd\raw\EN718_CTD01.hdr
+* Software Version Seasave V 7.26.7.121
+* Temperature SN = 4333
+* Conductivity SN = 2459
+* Number of Bytes Per Scan = 37
+* Number of Voltage Words = 4
+* Number of Scans Averaged by the Deck Unit = 1
+* System UpLoad Time = Jun 19 2024 20:26:44
+* NMEA Latitude = 38 47.29 N
+* NMEA Longitude = 071 29.68 W
+* NMEA UTC (Time) = Jun 19 2024  20:26:41
+* Store Lat/Lon Data = Append to Every Scan
+* SBE 11plus V 5.2
+* number of scans to average = 1
+* pressure baud rate = 9600
+* NMEA baud rate = 4800
+* Latitude/Longitude added to scan
+* GPIB address = 1
+* advance primary conductivity  0.073 seconds
+* autorun on power up is disabled
+* S>
+** Ship: R/V Endeavor 
+** Cruise: EN718 
+** Principal Investigator: Laurie Failkowski 
+** Chief Scientist: Laurie Failkowski 
+** Project: ANTICIPATE 24 
+** Cruise Start Date: 18 June 2024 
+** Ports: from and to GSO, Narragansett, RI 
+** Station:  A
+** Bottom Depth (m): 2717
+** Operator:  LB
+** to 1500 m depth after Billboard Array deployment. 1/2 nmi away
+* System UTC = Jun 19 2024 20:26:44
+*END*
