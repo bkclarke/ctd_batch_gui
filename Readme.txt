@@ -9,11 +9,26 @@ This software was developed as a front-end GUI for batch processing CTD data usi
 
 This application references a folder location containing the users .psa files associated with executables to be run.  The path to the seabird executables must be entered correctly.  The default path is:
 
-C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32
+C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32 but may differ based on your install.
 
 Once the .psa directory is chosen, all .psa extension files will populate in the GUI window. Once the seabird executable directory is chosen, dropdowns allow the user to select which module to run for each .psa. 
 
 To reduce effort, the user can save the configuration which saves input files and directories, configuration of processing order, and enabled/disabled settings for each executable.
+
+-----------------
+Running the software
+-----------------
+copy the CTD_batch_gui folder to a local directory.  
+
+In the main directory, open ctd_batch_application.
+
+If no configuration was found, either load a configuration, or select the 3 paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
+
+The .psa files will populate once the directory is selected.  Match the .psa to the appropriate executable and choose which order you want to run them, and which modules should be run. 
+
+Choose 1 or more raw .hex file to run.
+
+Select process data.  Files will be processed in series.  
 
 -----------------
 dependencies 
@@ -37,7 +52,7 @@ FilterW.exe
 CellTMW.exe
 
 DeriveW.exe 
--.psa configuration must uncheck 'match instrument configuration to input file.
+-.psa configuration must uncheck 'match instrument configuration to input file.'
 
 BinAvgW.exe
 

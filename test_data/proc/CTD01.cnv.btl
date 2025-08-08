@@ -297,11 +297,11 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Aug 08 2025 14:55:24, 7.26.7.129
+# datcnv_date = Aug 08 2025 15:02:44, 7.26.7.129
 # datcnv_in = C:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd01.hex C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.xmlcon
 # datcnv_bottle_scan_range_source = BL file
 # datcnv_scans_per_bottle = 49
-# bottlesum_date = Aug 08 2025 14:55:28, 7.26.7.129
+# bottlesum_date = Aug 08 2025 15:02:49, 7.26.7.129
 # bottlesum_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd01.ros C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.xmlcon
     Bottle        Date      Sal00      Sal11  Sigma-t00  Sigma-t11 Potemp090C Potemp190C       SvCM      SvCM1       Scan      TimeJ      TimeS       PrDM      T090C      T190C   T2-T190C      C0S/m      C1S/m       AltM      DepSM
   Position        Time                                                                                                                                                                                                                 

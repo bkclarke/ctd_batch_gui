@@ -191,7 +191,6 @@ def load_psa_files(psa_dir):
         # Store the widgets in a tuple for later use
         psa_frames.append((psa_frame, executable_dropdown, order_entry, select_var, select_checkbox, edit_button))
 
-
 # Function to load the last used configuration (only at the start of the app)
 def load_last_used_config():
     if os.path.exists(LAST_USED_CONFIG_FILE):  # Check if the last used config file exists
@@ -227,11 +226,12 @@ def load_config():
     except Exception as e:
         messagebox.showerror("Error", f"Failed to load configuration: {e}")
 
-# Function to save the path of the last used config file
+LAST_USED_CONFIG_FILE = "last_used_config.json"
+
 def save_last_used_config(file_path):
     try:
-        with open("last_used_config.txt", "w") as file:
-            file.write(file_path)
+        with open(LAST_USED_CONFIG_FILE, "w") as f:
+            json.dump({"config_file_path": file_path}, f)
     except Exception as e:
         print(f"Error saving last used config: {e}")
 

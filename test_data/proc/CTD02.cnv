@@ -343,24 +343,24 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Aug 08 2025 14:55:29, 7.26.7.129 [datcnv_vars = 13]
+# datcnv_date = Aug 08 2025 15:02:51, 7.26.7.129 [datcnv_vars = 13]
 # datcnv_in = C:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd02.hex C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD02.xmlcon
 # datcnv_skipover = 0
-# alignctd_date = Aug 08 2025 14:55:30, 7.26.7.129
+# alignctd_date = Aug 08 2025 15:02:52, 7.26.7.129
 # alignctd_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.cnv
 # alignctd_adv = c1S/m 0.073                                                                                                                                                                                                         
-# filter_date = Aug 08 2025 14:55:31, 7.26.7.129
+# filter_date = Aug 08 2025 15:02:53, 7.26.7.129
 # filter_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.cnv
 # filter_low_pass_tc_A = 0.030
 # filter_low_pass_tc_B = 0.150
 # filter_low_pass_A_vars = depSM
 # filter_low_pass_B_vars = prDM
-# celltm_date = Aug 08 2025 14:55:31, 7.26.7.129
+# celltm_date = Aug 08 2025 15:02:54, 7.26.7.129
 # celltm_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.cnv
 # celltm_alpha = 0.0300, 0.0300
 # celltm_tau = 7.0000, 7.0000
 # celltm_temp_sensor_use_for_cond = primary, secondary
-# Derive_date = Aug 08 2025 14:55:32, 7.26.7.129 [derive_vars = 7]
+# Derive_date = Aug 08 2025 15:02:54, 7.26.7.129 [derive_vars = 7]
 # Derive_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.cnv C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD02.xmlcon
 # derive_time_window_dzdt = seconds: 2
 # file_type = ascii
