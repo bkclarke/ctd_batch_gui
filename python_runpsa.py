@@ -6,8 +6,18 @@ import json
 import sv_ttk
 import pywinstyles, sys
 
-# File to store the path of the last used config file
-LAST_USED_CONFIG_FILE = "last_used_config.json"
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        # Running in a PyInstaller bundle
+        base_dir = os.path.dirname(sys.executable)  # folder where exe lives
+    else:
+        # Running in normal Python environment
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    return base_dir
+
+BASE_DIR = get_base_dir()
+LAST_USED_CONFIG_FILE = os.path.join(BASE_DIR, "last_used_config.json")
+print(f"Using last used config file at: {LAST_USED_CONFIG_FILE}")
 
 # Initialize the GUI
 root = tk.Tk()
@@ -193,6 +203,7 @@ def load_psa_files(psa_dir):
 
 # Function to load the last used configuration (only at the start of the app)
 def load_last_used_config():
+    print(LAST_USED_CONFIG_FILE)
     if os.path.exists(LAST_USED_CONFIG_FILE):  # Check if the last used config file exists
         try:
             with open(LAST_USED_CONFIG_FILE, "r") as f:
@@ -226,12 +237,11 @@ def load_config():
     except Exception as e:
         messagebox.showerror("Error", f"Failed to load configuration: {e}")
 
-LAST_USED_CONFIG_FILE = "last_used_config.json"
-
 def save_last_used_config(file_path):
     try:
         with open(LAST_USED_CONFIG_FILE, "w") as f:
             json.dump({"config_file_path": file_path}, f)
+        print(f"Saved last used config file path: {file_path} to {LAST_USED_CONFIG_FILE}")
     except Exception as e:
         print(f"Error saving last used config: {e}")
 
@@ -337,8 +347,14 @@ def save_config():
         with open(file_path, "w") as f:
             json.dump(config, f, indent=4)
         messagebox.showinfo("Configuration Saved", "Your configuration has been saved successfully!")
+
+        # Save the path of the saved config as the new "last used config file"
+        print(file_path)
+        save_last_used_config(file_path)
+
     except Exception as e:
         messagebox.showerror("Error", f"Failed to save configuration: {e}")
+        
 
 # Main processing function
 def process_data():

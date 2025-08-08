@@ -3,7 +3,37 @@ CTD Batch Processor ReadMe
 -----------------
 V1.0.0-beta.1
 
+**SBE Data Processing only runs on Windows 7 or later.  This application will only run on Window Operating Systems.
+
+-----------------
+Known Security Warnings
+-----------------
+
+When you download and run this application on Windows, you may see a message such as:
+
+"Windows protected your PC"
+This app is from an unknown publisher.
+
+This happens because the application is not code-signed with a paid digital certificate from a commercial Certificate Authority. Obtaining such a certificate can cost hundreds of dollars per year, which is often not practical for open-source or independent projects.
+
+This does not mean the application is unsafe.
+The source code is publicly available here on GitHub, and you are welcome to inspect it or build the application yourself from source.
+
+If you trust the source and wish to run the application:
+
+Click More info on the SmartScreen dialog.
+
+Click Run anyway.
+
+By keeping this project open-source, you can verify exactly what it does before running it.
+
+-----------------
+
 submit bug reports to https://github.com/bkclarke/ctd_processing/issues
+
+-----------------
+General
+-----------------
 
 This software was developed as a front-end GUI for batch processing CTD data using the SBE Data Processing application.  The base language is python, using the Tkinter library for GUI development.  This application does no actual processing of data, rather calls upon SBE data processing modules to do so, bypassing the need for a batch file.  
 
@@ -18,9 +48,10 @@ To reduce effort, the user can save the configuration which saves input files an
 -----------------
 Running the software
 -----------------
+
 copy the CTD_batch_gui folder to a local directory.  
 
-In the main directory, open ctd_batch_application.
+In ctd_bacth_gui>dist open the python_runpsa application
 
 If no configuration was found, either load a configuration, or select the 3 paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
 
@@ -34,9 +65,9 @@ Select process data.  Files will be processed in series.
 dependencies 
 -----------------
 
-While Python and associated libraries are cross platform capable, SBE Data Processing is not.  This application will only work on OS's capable of running SBE Data Processing.
-
 Python language and associated libraries do not need to be downloaded to run this application. 
+
+SBE Data Processing software must be installed.
 
 SBE data processing modules must be correctly configured for seamless data processing.
 
