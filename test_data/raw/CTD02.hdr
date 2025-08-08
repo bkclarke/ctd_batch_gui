@@ -1,0 +1,35 @@
+* Sea-Bird SBE 9 Data File:
+* FileName = D:\ctd\raw\CTD02.hdr
+* Software Version Seasave V 7.27.0.46
+* Temperature SN = 4695
+* Conductivity SN = 0618
+* Number of Bytes Per Scan = 40
+* Number of Voltage Words = 5
+* Number of Scans Averaged by the Deck Unit = 1
+* System UpLoad Time = Jul 24 2025 08:39:25
+* NMEA Latitude = 36 15.00 N
+* NMEA Longitude = 066 35.03 W
+* NMEA UTC (Time) = Jul 24 2025  08:39:22
+* Store Lat/Lon Data = Append to Every Scan
+* SBE 11plus V 5.2
+* number of scans to average = 1
+* pressure baud rate = 9600
+* NMEA baud rate = 4800
+* surface PAR voltage added to scan
+* A/D offset = 2
+* Latitude/Longitude added to scan
+* GPIB address = 1
+* advance primary conductivity  0.073 seconds
+* autorun on power up is disabled
+* S>
+** Ship: R/V Endeavor 
+** Cruise: EN734 
+** Principal Investigators: Bess Ward 
+** Chief_Scientist: Bess Ward 
+** Project: Nitrous Oxide Consumption in Surface Waters 
+** Cruise Start Date: 21 July 2025 
+** Ports: Narragansett to Narragansett, Rhode Island 
+** Bottom Depth:   
+** Operator:  JCH
+* System UTC = Jul 24 2025 08:39:25
+*END*

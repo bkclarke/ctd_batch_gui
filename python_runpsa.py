@@ -46,6 +46,7 @@ def select_raw_file():
 
 # Function to select the directory containing .psa files
 def select_psa_directory():
+    print("browse clicked")
     dir_path = filedialog.askdirectory(title="Select Directory Containing .psa Files")
     if dir_path:
         psa_dir_var.set(dir_path)
@@ -91,7 +92,7 @@ def edit_xml_file():
         if "DatCnvW" in os.path.basename(executable):
             input_file = raw_file
         else:
-            input_file = os.path.join(output_file_dir, output_file)
+            input_file = os.path.normpath(os.path.join(output_file_dir, output_file))
 
         command = [
             executable,
@@ -102,7 +103,7 @@ def edit_xml_file():
         ]
 
 # Global variable to store the selected PSA directory
-select_psa_directory = ""  # Global variable to store the selected PSA directory
+psa_dir_path = ""  # Global variable to store the selected PSA directory
 
 def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
     # Construct the full path to the executable based on the provided executable name
@@ -144,9 +145,9 @@ def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
 
 
 def load_psa_files(psa_dir):
-    global select_psa_directory  # Ensure we can check/set the path when necessary
+    global psa_dir_path  # Ensure we can check/set the path when necessary
 
-    select_psa_directory = psa_dir  # Set the global PSA directory
+    psa_dir_path = psa_dir  # Set the global PSA directory
 
     # Clear previous frames
     for frame in psa_frames:
@@ -305,7 +306,7 @@ def save_config():
         return  # If no file is selected, exit the function
 
     config = {
-        "raw_file": raw_file_var.get(),
+        "raw_files": raw_files_var.get().strip("{}").split(),
         "psa_dir": psa_dir_var.get(),
         "executables_dir": executables_dir_var.get(),
         "executables": executables,
@@ -313,7 +314,8 @@ def save_config():
         "psa_files": []
     }
 
-    for psa_file, executable_dropdown, order_entry, select_var, select_checkbox, _ in psa_frames:  # Unpack the 6 values and ignore the 6th value (edit_button)
+    for psa_frame, executable_dropdown, order_entry, select_var, select_checkbox, _ in psa_frames:
+        psa_file = psa_frame.winfo_children()[0].cget("text")  # Get the actual string
         executable = executable_dropdown.get()
         order = order_entry.get()
 
@@ -392,10 +394,16 @@ def process_data():
             psa_file_path = os.path.join(psa_dir, psa_file)
             print(f"Running {executable} for {psa_file} with raw file {raw_file}")
 
-            if "DatCnvW" in os.path.basename(executable):
+            exe_basename = os.path.basename(executable).lower()
+
+            if "datcnvw" in exe_basename:
                 input_file = raw_file
+            elif "bottlesumw" in exe_basename:
+                ros_file = f"{base_name}.ros"
+                input_file = os.path.join(output_file_dir, ros_file)
             else:
                 input_file = os.path.join(output_file_dir, output_file)
+
 
             command = [
                 executable,
@@ -406,9 +414,9 @@ def process_data():
                 "/s"
             ]
 
-            # Append /c<XMLCON> only for DatCnvW and Derive
+            # Append /c<XMLCON> only for DatCnvW, Derive, and bottlesum
             exe_basename = os.path.basename(executable).lower()
-            if "datcnvw" in exe_basename or "derivew" in exe_basename:
+            if "datcnvw" in exe_basename or "derivew" in exe_basename or 'bottlesumw' in exe_basename:
                 xmlcon_file = os.path.splitext(os.path.basename(raw_file))[0].upper() + ".xmlcon"
                 xmlcon_path = os.path.join(os.path.dirname(raw_file), xmlcon_file)
                 command.append(f"/c{xmlcon_path}")

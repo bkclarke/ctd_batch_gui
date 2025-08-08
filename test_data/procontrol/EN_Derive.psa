@@ -2,17 +2,17 @@
 <Derive >
   <Version value="7.26.7.129" />
   <ServerName value="Derive" />
-  <InstrumentPath value="D:\ctd\raw\REPLACE" />
-  <InstrumentMatch value="1" />
-  <InputDir value="D:\ctd\proc" />
+  <InstrumentPath value="C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.xmlcon" />
+  <InstrumentMatch value="0" />
+  <InputDir value="C:\Users\bonny\github\ctd_batch_gui\test_data\proc" />
   <InputFileArray size="1" GrowBy="-1" >
-    <ArrayItem index="0" value="EN719_CTD01.cnv" />
+    <ArrayItem index="0" value="ctd01.cnv" />
   </InputFileArray>
-  <OutputDir value="D:\ctd\proc" />
+  <OutputDir value="C:\Users\bonny\github\ctd_batch_gui\test_data\proc" />
   <NameAppend value="" />
-  <OutputFile value="EN719_CTD01" />
+  <OutputFile value="CTD01" />
   <LastProcessed value="0" />
-  <CalcArray Size="10" >
+  <CalcArray Size="7" >
     <CalcArrayItem index="0" CalcID="17" >
       <Calc UnitID="31" Ordinal="0" >
         <FullName value="Depth [salt water, m]" />
@@ -29,40 +29,25 @@
         <FullName value="Density [sigma-theta, kg/m^3]" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="3" CalcID="127" >
-      <Calc UnitID="61" Ordinal="0" >
-        <FullName value="Oxygen Saturation, Garcia &amp; Gordon [umol/kg]" />
-      </Calc>
-    </CalcArrayItem>
-    <CalcArrayItem index="4" CalcID="54" >
-      <Calc UnitID="61" Ordinal="0" >
-        <FullName value="Oxygen Saturation, Weiss [umol/kg]" />
-      </Calc>
-    </CalcArrayItem>
-    <CalcArrayItem index="5" CalcID="62" >
+    <CalcArrayItem index="3" CalcID="62" >
       <Calc UnitID="6" Ordinal="0" >
         <FullName value="Potential Temperature [ITS-90, deg C]" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="6" CalcID="74" >
+    <CalcArrayItem index="4" CalcID="74" >
       <Calc UnitID="33" Ordinal="0" >
         <FullName value="Sound Velocity [Chen-Millero, m/s]" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="7" CalcID="74" >
+    <CalcArrayItem index="5" CalcID="74" >
       <Calc UnitID="33" Ordinal="1" >
         <FullName value="Sound Velocity, 2 [Chen-Millero, m/s]" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="8" CalcID="18" >
+    <CalcArrayItem index="6" CalcID="18" >
       <Calc UnitID="32" Ordinal="0" >
         <FullName value="Descent Rate [m/s]" />
         <WindowSize value="2.000000" />
-      </Calc>
-    </CalcArrayItem>
-    <CalcArrayItem index="9" CalcID="37" >
-      <Calc UnitID="25" Ordinal="0" >
-        <FullName value="Geopotential Anomaly [J/kg]" />
       </Calc>
     </CalcArrayItem>
   </CalcArray>

@@ -2,15 +2,15 @@
 <Data_Conversion >
   <Version value="7.26.7.129" />
   <ServerName value="Data Conversion" />
-  <InstrumentPath value="C:\Users\bonny\github\ctd_processing\ctd\raw\EN718_CTD01.XMLCON" />
-  <InstrumentMatch value="1" />
-  <InputDir value="C:\Users\bonny\github\ctd_processing\ctd\raw" />
+  <InstrumentPath value="C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.XMLCON" />
+  <InstrumentMatch value="0" />
+  <InputDir value="C:\Users\bonny\github\ctd_batch_gui\test_data\raw" />
   <InputFileArray size="1" GrowBy="-1" >
-    <ArrayItem index="0" value="EN719_CTD06.hex" />
+    <ArrayItem index="0" value="CTD01.hex" />
   </InputFileArray>
-  <OutputDir value="C:\Users\bonny\github\ctd_processing\ctd\proc" />
+  <OutputDir value="C:\Users\bonny\github\ctd_batch_gui\test_data\proc" />
   <NameAppend value="" />
-  <OutputFile value="EN719_CTD06.cnv" />
+  <OutputFile value="CTD01" />
   <LastProcessed value="0" />
   <ProcessScansToEnd value="1" />
   <ScansToSkip value="0" />
@@ -18,13 +18,13 @@
   <MergeHeaderFile value="1" />
   <OutputFormat value="0" high="1" low="0" initialValue="0" />
   <FromCast value="0" high="1" low="0" initialValue="0" />
-  <CreateFile value="0" high="2" low="0" initialValue="0" />
+  <CreateFile value="2" high="2" low="0" initialValue="0" />
   <ScanRangeSource value="1" high="3" low="0" initialValue="3" />
   <ScanRangeOffset value="0.000000" />
   <ScanRangeDuration value="2.000000" />
   <StartTimeOption value="2" />
   <PromptForNoteAndOrStartTime value="0" />
-  <CalcArray Size="15" >
+  <CalcArray Size="13" >
     <CalcArrayItem index="0" CalcID="72" >
       <Calc UnitID="-1" Ordinal="0" >
         <FullName value="Scan Count" />
@@ -80,22 +80,12 @@
         <FullName value="Pump Status" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="11" CalcID="39" >
-      <Calc UnitID="4" Ordinal="0" >
-        <FullName value="Latitude [deg]" />
-      </Calc>
-    </CalcArrayItem>
-    <CalcArrayItem index="12" CalcID="40" >
-      <Calc UnitID="4" Ordinal="0" >
-        <FullName value="Longitude [deg]" />
-      </Calc>
-    </CalcArrayItem>
-    <CalcArrayItem index="13" CalcID="13" >
+    <CalcArrayItem index="11" CalcID="13" >
       <Calc UnitID="58" Ordinal="0" >
         <FullName value="Conductivity Difference, 2 - 1 [S/m]" />
       </Calc>
     </CalcArrayItem>
-    <CalcArrayItem index="14" CalcID="17" >
+    <CalcArrayItem index="12" CalcID="17" >
       <Calc UnitID="31" Ordinal="0" >
         <FullName value="Depth [salt water, m]" />
         <Latitude value="40.500000" />
