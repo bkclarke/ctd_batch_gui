@@ -5,6 +5,8 @@ V1.0.0-beta.1
 
 **SBE Data Processing only runs on Windows 7 or later.  This application will only run on Window Operating Systems.
 
+submit bug reports to https://github.com/bkclarke/ctd_processing/issues
+
 -----------------
 Known Security Warnings
 -----------------
@@ -28,10 +30,6 @@ Click Run anyway.
 By keeping this project open-source, you can verify exactly what it does before running it.
 
 -----------------
-
-submit bug reports to https://github.com/bkclarke/ctd_processing/issues
-
------------------
 General
 -----------------
 
@@ -45,15 +43,17 @@ Once the .psa directory is chosen, all .psa extension files will populate in the
 
 To reduce effort, the user can save the configuration which saves input files and directories, configuration of processing order, and enabled/disabled settings for each executable.
 
+Relative paths can be used for the input and output directories.  Path are relative to the /dist folder, where the application is run.
+
 -----------------
 Running the software
 -----------------
 
 copy the CTD_batch_gui folder to a local directory.  
 
-In ctd_bacth_gui>dist open the python_runpsa application
+In ctd_bacth_gui-main/dist open the python_runpsa application
 
-If no configuration was found, either load a configuration, or select the 3 paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
+If no configuration was found, either load a configuration, or manualy select the paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
 
 The .psa files will populate once the directory is selected.  Match the .psa to the appropriate executable and choose which order you want to run them, and which modules should be run. 
 

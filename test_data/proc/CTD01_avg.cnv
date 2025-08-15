@@ -345,21 +345,21 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Aug 13 2025 14:30:09, 7.26.7.129 [datcnv_vars = 13]
+# datcnv_date = Aug 14 2025 17:16:17, 7.26.7.129 [datcnv_vars = 13]
 # datcnv_in = C:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd01.hex C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.xmlcon
 # datcnv_skipover = 0
-# alignctd_date = Aug 13 2025 14:30:10, 7.26.7.129
+# alignctd_date = Aug 14 2025 17:16:19, 7.26.7.129
 # alignctd_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd01.cnv
 # alignctd_adv = c1S/m 0.073                                                                                                                                                                                                         
-# celltm_date = Aug 13 2025 14:30:11, 7.26.7.129
+# celltm_date = Aug 14 2025 17:16:21, 7.26.7.129
 # celltm_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd01.cnv
 # celltm_alpha = 0.0300, 0.0300
 # celltm_tau = 7.0000, 7.0000
 # celltm_temp_sensor_use_for_cond = primary, secondary
-# Derive_date = Aug 13 2025 14:30:11, 7.26.7.129 [derive_vars = 7]
+# Derive_date = Aug 14 2025 17:16:22, 7.26.7.129 [derive_vars = 7]
 # Derive_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd01.cnv C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD01.xmlcon
 # derive_time_window_dzdt = seconds: 2
-# binavg_date = Aug 13 2025 14:30:12, 7.26.7.129
+# binavg_date = Aug 14 2025 17:16:25, 7.26.7.129
 # binavg_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd01.cnv
 # binavg_bintype = meters
 # binavg_binsize = 1
