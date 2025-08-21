@@ -49,11 +49,14 @@ Relative paths can be used for the input and output directories.  Path are relat
 Running the software
 -----------------
 
-copy the CTD_batch_gui folder to a local directory.  
+copy the CTD_batch_gui folder to a local directory. 
+
+unzip folder
 
 In ctd_bacth_gui-main/dist open the python_runpsa application
+**See section 'Known Security Warnings' if a windows security screen appears. 
 
-If no configuration was found, either load a configuration, or manualy select the paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
+If no configuration was found, either load a configuration, or manually select the paths to directories (.psa files, executables, output file directory). Select 'save configuration' to save for next time. 
 
 The .psa files will populate once the directory is selected.  Match the .psa to the appropriate executable and choose which order you want to run them, and which modules should be run. 
 
