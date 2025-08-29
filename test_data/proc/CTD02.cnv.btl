@@ -297,12 +297,12 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Aug 29 2025 15:08:58, 7.26.7.129
-# datcnv_in = C:\Users\bonny\github\ctd_batch_gui_test\test_data\raw\ctd02.hex C:\Users\bonny\github\ctd_batch_gui_test\test_data\raw\CTD02.xmlcon
+# datcnv_date = Aug 29 2025 15:51:32, 7.26.7.129
+# datcnv_in = C:\Users\bonny\github\ctd_batch_gui_wtf\test_data\raw\ctd02.hex C:\Users\bonny\github\ctd_batch_gui_wtf\test_data\raw\CTD02.xmlcon
 # datcnv_bottle_scan_range_source = BL file
 # datcnv_scans_per_bottle = 49
-# bottlesum_date = Aug 29 2025 15:09:01, 7.26.7.129
-# bottlesum_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.ros C:\Users\bonny\github\ctd_batch_gui_test\test_data\raw\CTD02.xmlcon
+# bottlesum_date = Aug 29 2025 15:51:36, 7.26.7.129
+# bottlesum_in = C:\Users\bonny\github\ctd_batch_gui\test_data\proc\ctd02.ros C:\Users\bonny\github\ctd_batch_gui_wtf\test_data\raw\CTD02.xmlcon
     Bottle        Date      Sal00      Sal11  Sigma-t00  Sigma-t11 Potemp090C Potemp190C       SvCM      SvCM1       Scan      TimeJ      TimeS       PrDM      T090C      T190C   T2-T190C      C0S/m      C1S/m       AltM      DepSM
   Position        Time                                                                                                                                                                                                                 
       1    Jul 24 2025    36.3059    36.2945    23.5339    23.5252    27.5188    27.5191    1541.73    1541.72      12392 205.366682    516.292      5.011    27.5200    27.5203     0.0003   5.756202   5.754629       0.68      4.974 (avg)
