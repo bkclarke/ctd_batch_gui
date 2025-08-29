@@ -4,6 +4,7 @@ import os
 import subprocess
 import json
 import sv_ttk
+import re
 import pywinstyles, sys
 
 def get_base_dir():
@@ -34,6 +35,144 @@ sbedataprocessing_exe = ""
 psa_frames = []
 psa_files_frame = tk.Frame(root)  # Initialize psa_files_frame as a Tkinter frame
 
+def update_psa_files():
+    """
+    Update all .psa files with the correct InstrumentPath, InputDir, and OutputDir.
+    Resolves relative paths to absolute paths and escapes backslashes.
+    """
+    updated_files = []
+    errors = []
+
+    # Get raw files from GUI variable
+    raw_files = raw_files_var.get().split(";")
+    raw_files = [os.path.abspath(f.strip('"')) for f in raw_files if f]
+
+    # Get PSA and output directories
+    psa_dir = os.path.abspath(psa_dir_var.get())
+    output_file_dir = os.path.abspath(output_file_var.get())
+
+    if not psa_dir or not os.path.isdir(psa_dir):
+        messagebox.showerror("PSA Update Error", "No valid PSA directory selected.")
+        return
+    if not raw_files:
+        messagebox.showerror("PSA Update Error", "No raw files selected.")
+        return
+
+    # Find all PSA files in the directory
+    psa_files = [f for f in os.listdir(psa_dir) if f.lower().endswith(".psa")]
+    if not psa_files:
+        messagebox.showinfo("PSA Update", "No PSA files found in the PSA directory.")
+        return
+
+    for raw_file in raw_files:
+            base_name = os.path.splitext(os.path.basename(raw_file))[0]
+            raw_dir = os.path.dirname(raw_file)
+
+            for psa_file in psa_files:
+                psa_path = os.path.abspath(os.path.join(psa_dir, psa_file))
+
+                # Match executable type
+                exe_basename = ""
+                for exe in executables:
+                    if exe.lower() in psa_file.lower():
+                        exe_basename = exe.lower()
+                        break
+
+                # Determine InputDir
+                if "datcnvw" in exe_basename:
+                    input_dir = raw_dir
+                elif "bottlesumw" in exe_basename:
+                    ros_file = f"{base_name}.ros"
+                    input_dir = os.path.join(output_file_dir, ros_file)
+                else:
+                    input_dir = output_file_dir
+
+                # Convert all paths to forward slashes to avoid \U errors
+                input_dir = os.path.abspath(input_dir).replace("\\", "/")
+                output_file_dir_clean = os.path.abspath(output_file_dir).replace("\\", "/")
+                xmlcon_file = f"{base_name}.XMLCON"
+                instrument_path = os.path.abspath(os.path.join(raw_dir, xmlcon_file)).replace("\\", "/")
+
+                try:
+                    with open(psa_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+
+                    # Update InputDir and OutputDir
+                    content = re.sub(r'\s*<InputDir\s+value="[^"]*"\s*/>',
+                                    f'  <InputDir value="{input_dir}" />',
+                                    content, flags=re.IGNORECASE)
+
+                    content = re.sub(r'\s*<OutputDir\s+value="[^"]*"\s*/>',
+                                    f'  <OutputDir value="{output_file_dir_clean}" />',
+                                    content, flags=re.IGNORECASE)
+                    
+                    # Update InstrumentPath only if it exists
+                    if re.search(r'<InstrumentPath value=".*?" ?/>', content):
+                        content = re.sub(r'<InstrumentPath value=".*?" ?/>',
+                                        f'<InstrumentPath value="{instrument_path}" />', content)
+
+                    with open(psa_path, "w", encoding="utf-8") as f:
+                        f.write(content)
+
+                    updated_files.append(psa_path)
+
+                except Exception as e:
+                    errors.append(f"{psa_path}: {e}")
+
+    # Show updated files window
+    if updated_files:
+        show_updated_files_window(updated_files)
+
+    # Show errors window if any
+    if errors:
+        show_errors_window(errors)
+
+
+# Popup window for updated PSA files
+def show_updated_files_window(file_list):
+    window = tk.Toplevel(root)
+    window.title("Updated PSA Files")
+    window.geometry("500x400")
+
+    label = tk.Label(window, text="The following PSA files were updated:", font=("Arial", 12))
+    label.pack(pady=10)
+
+    listbox = tk.Listbox(window, width=80, height=20)
+    listbox.pack(padx=10, pady=5, fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(listbox, orient="vertical")
+    scrollbar.pack(side="right", fill="y")
+    listbox.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=listbox.yview)
+
+    for file_path in file_list:
+        listbox.insert("end", file_path)
+
+    ttk.Button(window, text="Close", command=window.destroy).pack(pady=10)
+
+# Popup window for errors
+def show_errors_window(error_list):
+    window = tk.Toplevel(root)
+    window.title("Errors Updating PSA Files")
+    window.geometry("500x400")
+
+    label = tk.Label(window, text="The following errors occurred:", font=("Arial", 12), fg="red")
+    label.pack(pady=10)
+
+    text = tk.Text(window, width=80, height=20)
+    text.pack(padx=10, pady=5, fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(text, orient="vertical")
+    scrollbar.pack(side="right", fill="y")
+    text.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=text.yview)
+
+    for err in error_list:
+        text.insert("end", err + "\n")
+
+    text.config(state="disabled")  # make read-only
+    ttk.Button(window, text="Close", command=window.destroy).pack(pady=10)
+
 # Function to override sv_ttk checkbox style
 def override_checkbox_style():
     # Override the style for Checkbuttons
@@ -48,11 +187,15 @@ def override_checkbox_style():
     # Ensure the focus highlights are appropriate
     style.map('TCheckbutton', foreground=[('active', 'yellow')])
 
-# Function to select the raw .hex file
 def select_raw_file():
-    raw_files = filedialog.askopenfilenames(title="Select Raw .hex File", filetypes=[("HEX files", "*.hex")])
+    raw_files = filedialog.askopenfilenames(
+        title="Select Raw .hex File",
+        filetypes=[("HEX files", "*.hex")]
+    )
     if raw_files:
-        raw_files_var.set(raw_files)
+        # Join with a safe delimiter (semicolon won’t conflict with spaces in paths)
+        raw_files_var.set(";".join(raw_files))
+        print("Selected raw files:", raw_files)
 
 # Function to select the directory containing .psa files
 def select_psa_directory():
@@ -359,8 +502,8 @@ def save_config():
 # Main processing function
 def process_data():
     print(f"raw_file_var = {raw_file_var}")
-    raw_files = raw_files_var.get()
-    raw_files = [os.path.normpath(f.strip('"')) for f in raw_file_var]
+    raw_files = raw_files_var.get().split(";")
+    raw_files = [os.path.normpath(f.strip('"')) for f in raw_files if f]
     print("Normalized raw files:", raw_files)
     psa_dir = psa_dir_var.get()
     output_file_dir = output_file_var.get()
@@ -507,9 +650,15 @@ executables = []
 def select_raw_files():
     files = filedialog.askopenfilenames(title="Select Raw .hex Files", filetypes=[("HEX files", "*.hex")])
     if files:
-        raw_file_var.clear()
-        raw_file_var.extend(files)
-        raw_file_display_label.config(text=", ".join(os.path.basename(f) for f in files))
+        # Update the StringVar for processing
+        raw_files_var.set(";".join(files))
+
+        # Update display label
+        raw_file_display_label.config(
+            text=", ".join(os.path.basename(f) for f in files)
+        )
+
+        print("Selected raw files:", files)
 
 # Layout (unchanged, just for reference)
 tk.Label(root, text="Select Raw .hex File:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
@@ -529,18 +678,21 @@ tk.Label(root, text="Select Output File Directory:").grid(row=3, column=0, padx=
 tk.Entry(root, textvariable=output_file_var, width=50).grid(row=3, column=1, padx=10, pady=5, sticky="ew")
 ttk.Button(root, text="Browse", command=lambda: output_file_var.set(filedialog.askdirectory(title="Select Output Directory"))).grid(row=3, column=2, padx=10, pady=5)
 
+ttk.Button(root, text="Update PSA Files", command=update_psa_files).grid(row=4, column=2, padx=10, pady=10, sticky="ew")
+
 # Frame to hold PSA entries
 psa_files_frame = tk.Frame(root)
-psa_files_frame.grid(row=4, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
+psa_files_frame.grid(row=5, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
 # Process Data Button
-ttk.Button(root, text="Process Data", command=process_data).grid(row=5, column=1, padx=10, pady=20)
+ttk.Button(root, text="Process Data", command=process_data).grid(row=6, column=1, padx=10, pady=20)
 
 # Save Configuration Button
-ttk.Button(root, text="Save Configuration", command=save_config).grid(row=6, column=0, padx=10, pady=20)
+ttk.Button(root, text="Save Configuration", command=save_config).grid(row=7, column=0, padx=10, pady=20)
 
 # Load Configuration Button
-ttk.Button(root, text="Load Configuration", command=load_config).grid(row=6, column=2, padx=10, pady=20)
+ttk.Button(root, text="Load Configuration", command=load_config).grid(row=7, column=2, padx=10, pady=20)
+
 
 sv_ttk.set_theme("dark")
 

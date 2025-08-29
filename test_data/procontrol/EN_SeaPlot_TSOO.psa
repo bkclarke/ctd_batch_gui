@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Sea_Plot >
   <Version value="7.26.7.129" />
-  <ServerName value="Sea Plot" />
-  <InputDir value="D:\ctd\proc" />
+  <ServerName value="Sea Plot" />  <InputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <InputFileArray size="1" GrowBy="-1" >
     <ArrayItem index="0" value="stn_1_avg.cnv" />
   </InputFileArray>
-  <OutputType value="3" high="3" low="0" initialValue="0" />
-  <OutputDir value="D:\ctd\proc" />
+  <OutputType value="3" high="3" low="0" initialValue="0" />  <OutputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <NameAppend value="_TSOO" />
   <OutputFile value="stn_1_avg.dib" />
   <LastProcessed value="0" />

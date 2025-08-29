@@ -2,13 +2,11 @@
 <Data_Conversion >
   <Version value="7.26.7.129" />
   <ServerName value="Data Conversion" />
-  <InstrumentPath value="" />
-  <InstrumentMatch value="0" />
-  <InputDir value="" />
+  <InstrumentPath value="C:/Users/bonny/github/ctd_batch_gui_test/test_data/raw/CTD02.XMLCON" />
+  <InstrumentMatch value="0" />  <InputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <InputFileArray size="1" GrowBy="-1" >
     <ArrayItem index="0" value="CTD01.hex" />
-  </InputFileArray>
-  <OutputDir value="" />
+  </InputFileArray>  <OutputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <NameAppend value="" />
   <OutputFile value="CTD01" />
   <LastProcessed value="0" />

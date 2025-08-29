@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Cell_Thermal_Mass >
   <Version value="7.26.7.129" />
-  <ServerName value="Cell Thermal Mass" />
-  <InputDir value="D:\ctd\proc" />
+  <ServerName value="Cell Thermal Mass" />  <InputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <InputFileArray size="1" GrowBy="-1" >
     <ArrayItem index="0" value="EN719_CTD01.cnv" />
-  </InputFileArray>
-  <OutputDir value="D:\ctd\proc" />
+  </InputFileArray>  <OutputDir value="C:/Users/bonny/github/ctd_batch_gui/test_data/proc" />
   <NameAppend value="" />
   <OutputFile value="EN719_CTD01" />
   <LastProcessed value="0" />
