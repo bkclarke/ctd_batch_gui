@@ -17,7 +17,7 @@ def get_base_dir():
     return base_dir
 
 BASE_DIR = get_base_dir()
-LAST_USED_CONFIG_FILE = os.path.join(BASE_DIR, "last_used_config.json")
+LAST_USED_CONFIG_FILE = os.path.join(BASE_DIR, "settings.json")
 print(f"Using last used config file at: {LAST_USED_CONFIG_FILE}")
 
 # Initialize the GUI
@@ -36,6 +36,7 @@ psa_frames = []
 psa_files_frame = tk.Frame(root)  # Initialize psa_files_frame as a Tkinter frame
 
 def update_psa_files():
+    print("update_psa_files() called")
     """
     Update all .psa files with the correct InstrumentPath, InputDir, and OutputDir.
     Resolves relative paths to absolute paths and escapes backslashes.
@@ -97,31 +98,54 @@ def update_psa_files():
                     with open(psa_path, "r", encoding="utf-8") as f:
                         content = f.read()
 
-                    # Update InputDir and OutputDir
-                    content = re.sub(r'\s*<InputDir\s+value="[^"]*"\s*/>',
-                                    f'  <InputDir value="{input_dir}" />',
-                                    content, flags=re.IGNORECASE)
+                    new_content = content
 
-                    content = re.sub(r'\s*<OutputDir\s+value="[^"]*"\s*/>',
-                                    f'  <OutputDir value="{output_file_dir_clean}" />',
-                                    content, flags=re.IGNORECASE)
-                    
-                    # Update InstrumentPath only if it exists
-                    if re.search(r'<InstrumentPath value=".*?" ?/>', content):
-                        content = re.sub(r'<InstrumentPath value=".*?" ?/>',
-                                        f'<InstrumentPath value="{instrument_path}" />', content)
+                    # Only replace if the value is different
+                    match_input = re.search(r'<InputDir\s+value="([^"]*)"', content, re.IGNORECASE)
+                    if not match_input or match_input.group(1) != input_dir:
+                        new_content = re.sub(
+                            r'\s*<InputDir\s+value="[^"]*"\s*/>',
+                            f'  <InputDir value="{input_dir}" />',
+                            new_content, flags=re.IGNORECASE
+                        )
 
-                    with open(psa_path, "w", encoding="utf-8") as f:
-                        f.write(content)
+                    match_output = re.search(r'<OutputDir\s+value="([^"]*)"', content, re.IGNORECASE)
+                    if not match_output or match_output.group(1) != output_file_dir_clean:
+                        new_content = re.sub(
+                            r'\s*<OutputDir\s+value="[^"]*"\s*/>',
+                            f'  <OutputDir value="{output_file_dir_clean}" />',
+                            new_content, flags=re.IGNORECASE
+                        )
 
-                    updated_files.append(psa_path)
+                    match_instr = re.search(r'<InstrumentPath\s+value="([^"]*)"', content, re.IGNORECASE)
+                    if match_instr and match_instr.group(1) != instrument_path:
+                        new_content = re.sub(
+                            r'<InstrumentPath\s+value=".*?" ?/>',
+                            f'<InstrumentPath value="{instrument_path}" />',
+                            new_content
+                        )
+
+                    # Check <InstrumentMatch> and set value="0" if different
+                    match_instrument = re.search(r'<InstrumentMatch\s+value="([^"]*)"', content, re.IGNORECASE)
+                    if match_instrument and match_instrument.group(1) != "0":
+                        new_content = re.sub(
+                            r'<InstrumentMatch\s+value="[^"]*"\s*/>',
+                            '<InstrumentMatch value="0" />',
+                            new_content, flags=re.IGNORECASE
+                        )
+
+                    # Only write if something actually changed
+                    if new_content != content:
+                        with open(psa_path, "w", encoding="utf-8") as f:
+                            f.write(new_content)
+                        updated_files.append(psa_path)
 
                 except Exception as e:
                     errors.append(f"{psa_path}: {e}")
 
     # Show updated files window
-    if updated_files:
-        show_updated_files_window(updated_files)
+    #if updated_files:
+    #    show_updated_files_window(updated_files)
 
     # Show errors window if any
     if errors:
@@ -501,6 +525,7 @@ def save_config():
 
 # Main processing function
 def process_data():
+    update_psa_files()
     print(f"raw_file_var = {raw_file_var}")
     raw_files = raw_files_var.get().split(";")
     raw_files = [os.path.normpath(f.strip('"')) for f in raw_files if f]
@@ -677,8 +702,6 @@ ttk.Button(root, text="Browse", command=select_executables_directory).grid(row=2
 tk.Label(root, text="Select Output File Directory:").grid(row=3, column=0, padx=10, pady=5, sticky="w")
 tk.Entry(root, textvariable=output_file_var, width=50).grid(row=3, column=1, padx=10, pady=5, sticky="ew")
 ttk.Button(root, text="Browse", command=lambda: output_file_var.set(filedialog.askdirectory(title="Select Output Directory"))).grid(row=3, column=2, padx=10, pady=5)
-
-ttk.Button(root, text="Update PSA Files", command=update_psa_files).grid(row=4, column=2, padx=10, pady=10, sticky="ew")
 
 # Frame to hold PSA entries
 psa_files_frame = tk.Frame(root)
