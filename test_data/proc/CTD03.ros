@@ -316,7 +316,7 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Sep 04 2025 20:06:16, 7.26.7.129
+# datcnv_date = Sep 04 2025 22:27:13, 7.26.7.129
 # datcnv_in = C:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd03.hex C:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD03.xmlcon
 # datcnv_bottle_scan_range_source = BL file
 # datcnv_scans_per_bottle = 49
