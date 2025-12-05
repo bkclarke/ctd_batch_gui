@@ -24,7 +24,7 @@ print(f"Using last used config file at: {LAST_USED_CONFIG_FILE}")
 root = tk.Tk()
 
 # Global variables for the configuration values
-raw_files_var = tk.StringVar()
+raw_files_var = []
 psa_dir_var = tk.StringVar()
 executables_dir_var = tk.StringVar()
 output_file_var = tk.StringVar()
@@ -36,7 +36,6 @@ psa_frames = []
 psa_files_frame = tk.Frame(root)  # Initialize psa_files_frame as a Tkinter frame
 
 def update_psa_files():
-    print("update_psa_files() called")
     """
     Update all .psa files with the correct InstrumentPath, InputDir, and OutputDir.
     Resolves relative paths to absolute paths and escapes backslashes.
@@ -44,9 +43,11 @@ def update_psa_files():
     updated_files = []
     errors = []
 
+    #print(raw_files_var)
+
     # Get raw files from GUI variable
-    raw_files = raw_files_var.get().split(";")
-    raw_files = [os.path.abspath(f.strip('"')) for f in raw_files if f]
+    raw_files = [os.path.abspath(f.strip('"')) for f in raw_files_var if f]
+    #print(raw_files)
 
     # Get PSA and output directories
     psa_dir = os.path.abspath(psa_dir_var.get())
@@ -212,18 +213,18 @@ def override_checkbox_style():
     style.map('TCheckbutton', foreground=[('active', 'yellow')])
 
 def select_raw_file():
-    raw_files = filedialog.askopenfilenames(
+    files = filedialog.askopenfilenames(
         title="Select Raw .hex File",
         filetypes=[("HEX files", "*.hex")]
     )
-    if raw_files:
-        # Join with a safe delimiter (semicolon won’t conflict with spaces in paths)
-        raw_files_var.set(";".join(raw_files))
-        print("Selected raw files:", raw_files)
+    if files:
+        raw_files_var.clear()
+        raw_files_var.extend(files)
+        print("Selected raw files:", raw_files_var)
 
 # Function to select the directory containing .psa files
 def select_psa_directory():
-    print("browse clicked")
+    #print("browse clicked")
     dir_path = filedialog.askdirectory(title="Select Directory Containing .psa Files")
     if dir_path:
         psa_dir_var.set(dir_path)
@@ -260,7 +261,7 @@ def edit_xml_file():
             executable_path = os.path.join(executables_dir_var.get(), selected_executable) if selected_executable != "Select Executable Path" else ""
             selected_psa_file.append((psa_file, executable_path))
 
-    for psa_file, executable, _ in selected_psa_file:
+    for psa_file, executable in selected_psa_file:
         psa_file_path = os.path.join(psa_dir, psa_file)
 
         base_name = os.path.splitext(os.path.basename(raw_file))[0]
@@ -321,16 +322,14 @@ def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
         messagebox.showerror("Error", f"Failed to open PSA file with {executable_name}: {e.stderr}")
 
 
-def load_psa_files(psa_dir):
-    global psa_dir_path  # Ensure we can check/set the path when necessary
-
-    psa_dir_path = psa_dir  # Set the global PSA directory
+def load_psa_files(psa_dir, config):
+    global psa_dir_path
+    psa_dir_path = psa_dir
 
     # Clear previous frames
-    for frame in psa_frames:
-        frame[0].destroy()  # Destroy only the frame widget (frame[0])
-
-    psa_frames.clear()  # Clear the list of frames to avoid reusing old frames
+    for frame, *_ in psa_files_frame.psa_frames:
+        frame.destroy()
+    psa_files_frame.psa_frames.clear()
 
     # List all .psa files in the selected directory
     psa_files = [f for f in os.listdir(psa_dir) if f.endswith('.psa')]
@@ -339,38 +338,21 @@ def load_psa_files(psa_dir):
         messagebox.showwarning("No Files Found", "No .psa files found in the selected directory.")
         return
 
-    # Create a frame for each PSA file
-    for idx, psa_file in enumerate(psa_files):
-        psa_frame = tk.Frame(psa_files_frame)
-        psa_frame.grid(row=idx, sticky="ew", pady=5)
+    # Add each PSA file using the scrollable frame method
+    for psa_file in psa_files:
+        # Check if this psa_file is in the config and if so, get the executable and other info
+        matching_psa_data = next((item for item in config.get("psa_files", []) if item.get("psa_file") == psa_file), None)
+        executable = matching_psa_data.get("executable", "") if matching_psa_data else ""
+        selected = matching_psa_data.get("selected", False) if matching_psa_data else False
 
-        # PSA file name label
-        psa_label = tk.Label(psa_frame, text=psa_file, width=30)
-        psa_label.grid(row=0, column=0, padx=5)
+        # Add the PSA file row to the GUI
+        psa_files_frame.add_psa_file_row(psa_file, executables, executable, selected)
 
-        executable_dropdown = ttk.Combobox(psa_frame, values=["Select Executable Path"] + executables)
-        executable_dropdown.grid(row=0, column=1, padx=5)
 
-        # Order number entry (initially 1)
-        order_entry = tk.Entry(psa_frame, width=5)
-        order_entry.insert(0, str(idx + 1))  # Default order number is idx + 1
-        order_entry.grid(row=0, column=2, padx=5)
-
-        # Select/Deselect checkbox
-        select_var = tk.BooleanVar(value=True)  # Default is selected
-        select_checkbox = ttk.Checkbutton(psa_frame, text="Run", variable=select_var, style="TCheckbutton")
-        select_checkbox.grid(row=0, column=3, padx=5)
-
-        # Edit PSA Button to open the file in SBEDataprocessing
-        edit_button = ttk.Button(psa_frame, text="Edit PSA", command=lambda psa_file=psa_file, psa_dir=psa_dir, executable_dropdown=executable_dropdown: open_in_sbedataprocessing(psa_dir, psa_file, executable_dropdown.get()))
-        edit_button.grid(row=0, column=4, padx=5)
-
-        # Store the widgets in a tuple for later use
-        psa_frames.append((psa_frame, executable_dropdown, order_entry, select_var, select_checkbox, edit_button))
 
 # Function to load the last used configuration (only at the start of the app)
 def load_last_used_config():
-    print(LAST_USED_CONFIG_FILE)
+    #print(LAST_USED_CONFIG_FILE)
     if os.path.exists(LAST_USED_CONFIG_FILE):  # Check if the last used config file exists
         try:
             with open(LAST_USED_CONFIG_FILE, "r") as f:
@@ -408,57 +390,45 @@ def save_last_used_config(file_path):
     try:
         with open(LAST_USED_CONFIG_FILE, "w") as f:
             json.dump({"config_file_path": file_path}, f)
-        print(f"Saved last used config file path: {file_path} to {LAST_USED_CONFIG_FILE}")
+        #print(f"Saved last used config file path: {file_path} to {LAST_USED_CONFIG_FILE}")
     except Exception as e:
         print(f"Error saving last used config: {e}")
 
 def load_config_to_gui(config):
-    # Update the GUI with values from the loaded configuration
-    # Load list of raw files
-    raw_files = config.get("raw_files", [])  # Make sure your saved config uses this key
-    raw_file_var.clear()
-    raw_file_var.extend(raw_files)
+    # Clear previous data
+    psa_files_frame.psa_frames.clear()
+    for child in psa_files_frame.scrollable_frame.winfo_children():
+        child.destroy()
 
-    # Update the label displaying selected files
-    if raw_files:
-        raw_file_display_label.config(text=", ".join(os.path.basename(f) for f in raw_files))
-    else:
-        raw_file_display_label.config(text="No files selected")
-    
+    # Load raw files
+    raw_files = config.get("raw_files", [])
+    raw_files_var.clear()
+    raw_files_var.extend(raw_files)
+    raw_file_display_label.config(
+        text=", ".join(os.path.basename(f) for f in raw_files) if raw_files else "No files selected"
+    )
+
+    # Set directories and output path
     psa_dir_var.set(config.get("psa_dir", ""))
     executables_dir_var.set(config.get("executables_dir", ""))
     output_file_var.set(config.get("output_file", ""))
 
-    # Load executables list
     global executables
     executables = config.get("executables", [])
 
-    # Load PSA files and their respective data
-    load_psa_files(config["psa_dir"])
+    # Load PSA files in the **saved order**
+    for psa_data in config.get("psa_files", []):
+        psa_file_name = psa_data.get("psa_file")
+        executable_path = psa_data.get("executable", "")
+        selected = psa_data.get("selected", False)
 
-    # Update PSA file data from the config
-    for psa_data in config["psa_files"]:
-        for psa_frame, executable_dropdown, order_entry, select_var, select_checkbox, *_ in psa_frames:  # Update here
-            # Check if the psa_frame has the correct PSA file
-            if psa_frame.winfo_children()[0].cget("text") == psa_data["psa_file"]:
-                # Update the executable dropdown
-                executable = psa_data["executable"]
-                executable_name = os.path.basename(executable) if executable else "Select Executable Path"
-                executable_dropdown.set(executable_name)
-
-                # Update the order entry
-                order_entry.delete(0, tk.END)
-                order_entry.insert(0, psa_data["order"])
-
-                # Update the checkbox
-                select_var.set(psa_data["selected"])  # Set the checkbox state
-
-                # Update the Checkbutton state
-                if select_var.get():
-                    select_checkbox.state(["selected"])
-                else:
-                    select_checkbox.state(["!selected"])
-
+        exe_name = os.path.basename(executable_path) if executable_path else ""
+        psa_files_frame.add_psa_file_row(
+            psa_file=psa_file_name,
+            executables=executables,
+            executable=exe_name,
+            selected=selected
+        )
 
 # Function to select the directory containing executable files
 def select_executables_directory():
@@ -475,7 +445,6 @@ def select_executables_directory():
             executable_dropdown["values"] = ["Select Executable Path"] + executables
             executable_dropdown.set("Select Executable Path")
 
-# Function to save the current configuration to a user-selected config file
 def save_config():
     # Ask the user for the file path where the configuration should be saved
     file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")])
@@ -483,53 +452,52 @@ def save_config():
         return  # If no file is selected, exit the function
 
     config = {
-        "raw_files": raw_files_var.get().strip("{}").split(),
+        "raw_files": list(raw_files_var),
         "psa_dir": psa_dir_var.get(),
         "executables_dir": executables_dir_var.get(),
         "executables": executables,
-        "output_file": output_file_var.get(),  # Add output file path
+        "output_file": output_file_var.get(),
         "psa_files": []
     }
 
-    for psa_frame, executable_dropdown, order_entry, select_var, select_checkbox, _ in psa_frames:
-        psa_file = psa_frame.winfo_children()[0].cget("text")  # Get the actual string
+    # Save PSA files in the actual visual order of the scrollable list
+    print("\n--- Debug: Saving PSA Files Order ---")
+    for idx, (frame, psa_file, executable_dropdown, select_var) in enumerate(psa_files_frame.psa_frames):
         executable = executable_dropdown.get()
-        order = order_entry.get()
-
-        # Save the executable file path instead of just the name
         executable_path = ""
         if executable != "Select Executable Path":
             executable_path = os.path.join(executables_dir_var.get(), executable)
-
         selected = select_var.get()
 
         config["psa_files"].append({
             "psa_file": psa_file,
             "executable": executable_path,
-            "order": order,
             "selected": selected
         })
+        print(f"Index {idx}: {psa_file}, Executable: {executable_path}, Selected: {selected}")
+    print("--- End Debug ---\n")
 
     try:
         with open(file_path, "w") as f:
             json.dump(config, f, indent=4)
         messagebox.showinfo("Configuration Saved", "Your configuration has been saved successfully!")
-
-        # Save the path of the saved config as the new "last used config file"
-        print(file_path)
         save_last_used_config(file_path)
-
     except Exception as e:
         messagebox.showerror("Error", f"Failed to save configuration: {e}")
-        
 
 # Main processing function
 def process_data():
-    update_psa_files()
-    print(f"raw_file_var = {raw_file_var}")
-    raw_files = raw_files_var.get().split(";")
-    raw_files = [os.path.normpath(f.strip('"')) for f in raw_files if f]
+    
+    raw_files = raw_files_var  
+    raw_files = [os.path.normpath(f.strip('"')) for f in raw_files if f]  # Normalize paths
     print("Normalized raw files:", raw_files)
+
+    if not raw_files:
+        messagebox.showerror("Error", "No raw files selected.")
+        return
+    
+    update_psa_files()
+    
     psa_dir = psa_dir_var.get()
     output_file_dir = output_file_var.get()
 
@@ -546,37 +514,21 @@ def process_data():
         return
 
     selected_psa_files = []
-    for psa_frame, executable_dropdown, order_entry, select_var, *_ in psa_frames:
+    for frame, psa_file, executable_dropdown, select_var in psa_files_frame.psa_frames:
         if select_var.get():
-            selected_executable = executable_dropdown.get()
-
-            psa_file = psa_frame.winfo_children()[0].cget("text")
-
-            if selected_executable == "Select Executable Path":
-                messagebox.showerror("Error", f"Please select an executable for {psa_file}.")
+            executable = executable_dropdown.get()
+            if executable == "Select Executable Path":
+                messagebox.showerror("Error", f"Please select an executable for {psa_file}")
                 return
-            try:
-                order = int(order_entry.get())
-            except ValueError:
-                messagebox.showerror("Error", f"Invalid order number for {psa_file}. Please enter a valid integer.")
-                return
-            
-            executable_path = os.path.join(executables_dir_var.get(), selected_executable) if selected_executable != "Select Executable Path" else ""
-            selected_psa_files.append((psa_file, executable_path, order))
-
-    if not selected_psa_files:
-        messagebox.showerror("Error", "Please select at least one .psa file to process.")
-        return
-
-    selected_psa_files.sort(key=lambda x: x[2])
+            selected_psa_files.append((psa_file, executable))
 
     for raw_file in raw_files:
         base_name = os.path.splitext(os.path.basename(raw_file))[0]
         output_file = f"{base_name}.cnv"
 
-        for psa_file, executable, _ in selected_psa_files:
+        for psa_file, executable in selected_psa_files:
             psa_file_path = os.path.join(psa_dir, psa_file)
-            print(f"Running {executable} for {psa_file} with raw file {raw_file}")
+            #print(f"Running {executable} for {psa_file} with raw file {raw_file}")
 
             exe_basename = os.path.basename(executable).lower()
 
@@ -683,7 +635,7 @@ def select_raw_files():
             text=", ".join(os.path.basename(f) for f in files)
         )
 
-        print("Selected raw files:", files)
+        #print("Selected raw files:", files)
 
 # Layout (unchanged, just for reference)
 tk.Label(root, text="Select Raw .hex File:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
@@ -703,19 +655,308 @@ tk.Label(root, text="Select Output File Directory:").grid(row=3, column=0, padx=
 tk.Entry(root, textvariable=output_file_var, width=50).grid(row=3, column=1, padx=10, pady=5, sticky="ew")
 ttk.Button(root, text="Browse", command=lambda: output_file_var.set(filedialog.askdirectory(title="Select Output Directory"))).grid(row=3, column=2, padx=10, pady=5)
 
-# Frame to hold PSA entries
-psa_files_frame = tk.Frame(root)
-psa_files_frame.grid(row=5, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
+def bind_mouse_scroll(widget, canvas):
+    """Bind mouse wheel / touchpad scrolling to the canvas."""
+    def on_mousewheel(event):
+        # For Windows & MacOS
+        if event.num == 5 or event.delta < 0:
+            canvas.yview_scroll(1, "units")
+        elif event.num == 4 or event.delta > 0:
+            canvas.yview_scroll(-1, "units")
 
-# Process Data Button
-ttk.Button(root, text="Process Data", command=process_data).grid(row=6, column=1, padx=10, pady=20)
+    # Windows and MacOS
+    widget.bind_all("<MouseWheel>", on_mousewheel)
+    # Linux
+    widget.bind_all("<Button-4>", on_mousewheel)
+    widget.bind_all("<Button-5>", on_mousewheel)
+
+def disable_combobox_scroll(combobox):
+    """Prevent mouse wheel from changing the Combobox selection."""
+    def stop_scroll(event):
+        return "break"  # Stops event propagation
+
+    combobox.bind("<MouseWheel>", stop_scroll)  # Windows / macOS
+    combobox.bind("<Button-4>", stop_scroll)    # Linux scroll up
+    combobox.bind("<Button-5>", stop_scroll)    # Linux scroll down
+
+def allow_canvas_scroll_over_combobox(combobox, canvas):
+    """Prevent Combobox from changing its value on scroll, but still scroll the canvas."""
+    def on_mousewheel(event):
+        # Forward the scroll to the canvas
+        if event.num == 5 or event.delta < 0:
+            canvas.yview_scroll(1, "units")
+        elif event.num == 4 or event.delta > 0:
+            canvas.yview_scroll(-1, "units")
+        return "break"  # Prevent the Combobox itself from scrolling
+
+    # Bind for Windows/macOS
+    combobox.bind("<MouseWheel>", on_mousewheel)
+    # Bind for Linux
+    combobox.bind("<Button-4>", on_mousewheel)
+    combobox.bind("<Button-5>", on_mousewheel)
+
+class ScrollablePSAList(tk.Frame):
+    def __init__(self, parent, row_height=40, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.row_height = row_height
+        self.psa_frames = []
+
+        # Dragging helpers
+        self.drag_widget = None
+        self.placeholder = None
+        self.offset_y = 0
+        self.drag_width = None
+        self.drag_height = None
+
+        # Canvas + scrollbar
+        self.canvas = tk.Canvas(self, highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Make rows always stretch to canvas width
+        self.canvas.bind("<Configure>", self.on_canvas_resize)
+
+    def on_canvas_resize(self, event):
+        # Resize the scrollable_frame to match the canvas width
+        self.canvas.itemconfig(self.canvas_window, width=event.width)
+        
+        # Also resize each row to match the new width
+        for frame, *_ in self.psa_frames:
+            frame.configure(width=event.width)
+        
+        # Resize placeholder too
+        if self.placeholder:
+            self.placeholder.configure(width=event.width)
+
+    # -------------------------- DRAG FUNCTIONS --------------------------
+
+    def bind_drag_events(self, widget):
+        widget.bind("<ButtonPress-1>", self.on_press)
+        widget.bind("<B1-Motion>", self.on_drag)
+        widget.bind("<ButtonRelease-1>", self.on_release)
+
+    def get_frame_from_widget(self, widget):
+        while widget and widget not in [f[0] for f in self.psa_frames]:
+            widget = widget.master
+        return widget
+
+    def on_press(self, event):
+        widget = self.get_frame_from_widget(event.widget)
+        if not widget:
+            return
+
+        self.drag_widget = widget
+        widget.update_idletasks()
+        self.drag_width = widget.winfo_width()
+        self.drag_height = widget.winfo_height()
+
+        # Create placeholder
+        self.placeholder = tk.Frame(self.scrollable_frame, height=self.drag_height)
+        self.placeholder.pack(fill="x", pady=2)
+
+        widget.lift()
+        widget.place(
+            in_=self.scrollable_frame,
+            x=0,
+            y=widget.winfo_y(),
+            width=self.drag_width,
+            height=self.drag_height
+        )
+
+        self.offset_y = event.y
+
+    def on_drag(self, event):
+        if not self.drag_widget:
+            return
+
+        canvas_y = self.canvas.canvasy(event.y_root - self.winfo_rooty())
+        new_y = canvas_y - self.offset_y
+
+        self.drag_widget.place_configure(y=new_y)
+        self.update_placeholder(new_y)
+
+        # Auto-scroll while dragging
+        if event.y < 30:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.y > self.winfo_height() - 30:
+            self.canvas.yview_scroll(1, "units")
+
+
+    def on_release(self, event):
+        if not self.drag_widget:
+            return
+
+        # Remove from place geometry
+        self.drag_widget.place_forget()
+
+        # Find index of dragged widget in internal list
+        dragged_index = next((i for i, f in enumerate(self.psa_frames) if f[0] is self.drag_widget), None)
+        if dragged_index is None:
+            return
+
+        # Determine sibling frame to pack before (if not at the end)
+        if dragged_index < len(self.psa_frames) - 1:
+            sibling_frame = self.psa_frames[dragged_index + 1][0]
+            self.drag_widget.pack(before=sibling_frame, fill="x", pady=2)
+        else:
+            self.drag_widget.pack(fill="x", pady=2)
+
+        # Destroy placeholder
+        if self.placeholder:
+            self.placeholder.destroy()
+            self.placeholder = None
+
+        self.drag_widget = None
+
+
+    def update_placeholder(self, widget_y):
+        positions = []
+
+        for frame, *_ in self.psa_frames:
+            if frame is self.drag_widget:
+                continue
+            if not frame.winfo_exists():
+                continue
+            try:
+                y = frame.winfo_y()
+            except tk.TclError:
+                continue
+            positions.append((frame, y))
+
+        # Default: insert at the end
+        insert_index = len(positions)
+
+        for idx, (frame, y) in enumerate(positions):
+            if widget_y < y:
+                insert_index = idx
+                break
+
+        # Stretch placeholder width
+        if self.placeholder:
+            self.placeholder.pack_forget()
+            if insert_index < len(positions):
+                self.placeholder.pack(before=positions[insert_index][0], fill="x", pady=2)
+            else:
+                self.placeholder.pack(fill="x", pady=2)
+            self.placeholder.configure(width=self.canvas.winfo_width())
+
+        # Update internal order list to reflect new position of dragged frame
+        dragged_tuple = next(f for f in self.psa_frames if f[0] is self.drag_widget)
+        self.psa_frames = [f for f in self.psa_frames if f[0] is not self.drag_widget]
+        self.psa_frames.insert(insert_index, dragged_tuple)
+
+
+    def update_internal_order(self):
+        """Keeps psa_frames list synchronized with visual order, ignoring placeholder."""
+        ordered = []
+        for child in self.scrollable_frame.winfo_children():
+            if child is self.placeholder:  # skip placeholder
+                continue
+            for f in self.psa_frames:
+                if f[0] is child:
+                    ordered.append(f)
+                    break
+        self.psa_frames = ordered
+
+
+    # -------------------------- ROW CREATION --------------------------
+
+    def add_psa_file_row(self, psa_file, executables, executable="", selected=False):
+        frame = ttk.Frame(self.scrollable_frame)
+        frame.pack(fill="x", expand=True, pady=2)
+
+        # Drag handle
+        drag_label = ttk.Label(frame, text="≡", cursor="hand2")
+        drag_label.grid(row=0, column=0, padx=5)
+        self.bind_drag_events(drag_label)
+
+        # Checkbox
+        select_var = tk.BooleanVar(value=selected)
+        chk = ttk.Checkbutton(frame, variable=select_var)
+        chk.grid(row=0, column=1, padx=5)
+
+        # File label
+        lbl = ttk.Label(frame, text=psa_file, anchor="w")
+        lbl.grid(row=0, column=2, padx=5, sticky="ew")
+
+        # Dropdown
+        executable_dropdown = ttk.Combobox(
+            frame,
+            values=["Select Executable Path"] + executables,
+            width=25
+        )
+        executable_dropdown.set(executable if executable else "Select Executable Path")
+        executable_dropdown.grid(row=0, column=3, padx=5)
+
+        # Disable scrolling on dropdown
+        disable_combobox_scroll(executable_dropdown)
+
+        #allow scrolling over combox
+        allow_canvas_scroll_over_combobox(executable_dropdown, self.canvas)
+
+        # Bind drag to entire row (handle + label)
+        for w in (frame, lbl):
+            self.bind_drag_events(w)
+
+        # Make columns scale properly
+        frame.grid_columnconfigure(2, weight=5)
+        frame.grid_columnconfigure(3, weight=0)
+        frame.grid_columnconfigure(0, weight=0)
+        frame.grid_columnconfigure(1, weight=0)
+
+        self.psa_frames.append((frame, psa_file, executable_dropdown, select_var))
+
+
+    def rebuild_frames(self):
+        for frame, *_ in self.psa_frames:
+            frame.tkraise()
+
+
+psa_files_frame = ScrollablePSAList(root)
+
+# Input/output section (rows 0-3) stays the same
+root.grid_columnconfigure(0, weight=0)  # labels
+root.grid_columnconfigure(1, weight=1)  # entries
+
+# ---------------- Scrollable box section ----------------
+# Create a container frame that spans all columns
+psa_container = ttk.Frame(root)
+psa_container.grid(row=4, column=0, columnspan=3, sticky="nsew", pady=10)
+root.grid_rowconfigure(4, weight=1)
+
+# Center the scrollable box inside the container using pack
+psa_files_frame = ScrollablePSAList(psa_container)
+psa_files_frame.pack(padx=20, pady=5, fill="both", expand=True)  # Set expand=True here
+psa_files_frame.config(width=600)
+
+# Enable mouse/touchpad scrolling
+bind_mouse_scroll(psa_files_frame.scrollable_frame, psa_files_frame.canvas)
+
+# ---------------- Buttons section ----------------
+# Place buttons in the grid, centered in row 5
+root.grid_rowconfigure(5, weight=0)  # Make sure the button row doesn't expand
 
 # Save Configuration Button
-ttk.Button(root, text="Save Configuration", command=save_config).grid(row=7, column=0, padx=10, pady=20)
+ttk.Button(root, text="Save Configuration", command=save_config).grid(row=5, column=0, padx=10, pady=20)
+
+# Process Data Button
+ttk.Button(root, text="Process Data", command=process_data).grid(row=5, column=1, padx=10, pady=20)
 
 # Load Configuration Button
-ttk.Button(root, text="Load Configuration", command=load_config).grid(row=7, column=2, padx=10, pady=20)
+ttk.Button(root, text="Load Configuration", command=load_config).grid(row=5, column=2, padx=10, pady=20)
 
+# Center the buttons horizontally in column 1 by setting their columnspan
 
 sv_ttk.set_theme("dark")
 
