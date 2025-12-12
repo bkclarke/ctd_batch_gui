@@ -35,6 +35,18 @@ sbedataprocessing_exe = ""
 psa_frames = []
 psa_files_frame = tk.Frame(root)  # Initialize psa_files_frame as a Tkinter frame
 
+def resolve_path(path):
+    """Convert stored config paths (absolute or relative) to absolute FS paths."""
+    if not path:
+        return path
+
+    # If it's already absolute, return it
+    if os.path.isabs(path):
+        return os.path.normpath(path)
+
+    # If it's relative, resolve relative to BASE_DIR
+    return os.path.normpath(os.path.join(BASE_DIR, path))
+
 def update_psa_files():
     """
     Update all .psa files with the correct InstrumentPath, InputDir, and OutputDir.
@@ -400,12 +412,12 @@ def save_last_used_config(file_path):
         print(f"Error saving last used config: {e}")
 
 def load_config_to_gui(config):
-    # Clear previous data
+    # Clear previous PSA UI
     psa_files_frame.psa_frames.clear()
     for child in psa_files_frame.scrollable_frame.winfo_children():
         child.destroy()
 
-    # Load raw files
+    # --- Load raw files ---
     raw_files = config.get("raw_files", [])
     raw_files_var.clear()
     raw_files_var.extend(raw_files)
@@ -413,27 +425,42 @@ def load_config_to_gui(config):
         text=", ".join(os.path.basename(f) for f in raw_files) if raw_files else "No files selected"
     )
 
-    # Set directories and output path
+    # --- Load directories ---
     psa_dir_var.set(config.get("psa_dir", ""))
     executables_dir_var.set(config.get("executables_dir", ""))
     output_file_var.set(config.get("output_file", ""))
 
+    # --- Load executables list ---
     global executables
     executables = config.get("executables", [])
 
-    # Load PSA files in the **saved order**
-    for psa_data in config.get("psa_files", []):
-        psa_file_name = psa_data.get("psa_file")
+    # --- Load PSA file rows ---
+    psa_list = config.get("psa_files", [])
+
+    if not isinstance(psa_list, list):
+        print("Invalid psa_files section in config:", psa_list)
+        return  # do not crash
+
+    for psa_data in psa_list:
+
+        # Skip corrupted entries
+        if not isinstance(psa_data, dict):
+            print("Skipping bad PSA entry:", psa_data)
+            continue
+        
+        psa_file_name = psa_data.get("psa_file", "")
         executable_path = psa_data.get("executable", "")
         selected = psa_data.get("selected", False)
 
         exe_name = os.path.basename(executable_path) if executable_path else ""
+
         psa_files_frame.add_psa_file_row(
             psa_file=psa_file_name,
             executables=executables,
             executable=exe_name,
             selected=selected
         )
+
 
 # Function to select the directory containing executable files
 def select_executables_directory():
@@ -633,7 +660,11 @@ def select_raw_files():
     files = filedialog.askopenfilenames(title="Select Raw .hex Files", filetypes=[("HEX files", "*.hex")])
     if files:
         # Update the StringVar for processing
-        raw_files_var.set(";".join(files))
+        raw_files_var.clear()
+        raw_files_var.extend(files)
+        raw_file_display_label.config(
+            text=", ".join(os.path.basename(f) for f in raw_files_var)
+        )
 
         # Update display label
         raw_file_display_label.config(

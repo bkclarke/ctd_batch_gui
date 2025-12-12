@@ -1,8 +1,8 @@
 {
     "raw_files": [
-        "./test_data/raw/CTD02.hex"
+        "C:/Users/bonny/github/ctd_batch_gui/test_data/raw/CTD02.hex"
     ],
-    "psa_dir": "./test_data/procontrol",
+    "psa_dir": "C:/Users/bonny/github/ctd_batch_gui/test_data/procontrol",
     "executables_dir": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32",
     "executables": [
         "AlignCTDW.exe",
@@ -38,51 +38,51 @@
         "WildEditW.exe",
         "W_FilterW.exe"
     ],
-    "output_file": "./test_data/raw",
+    "output_file": "C:/Users/bonny/github/ctd_batch_gui/test_data/proc",
     "psa_files": [
+        {
+            "psa_file": "EN_AlignCTD.psa",
+            "executable": "",
+            "selected": false
+        },
+        {
+            "psa_file": "EN_BinAvg.psa",
+            "executable": "",
+            "selected": false
+        },
+        {
+            "psa_file": "EN_BottleSum.psa",
+            "executable": "",
+            "selected": false
+        },
+        {
+            "psa_file": "EN_CellTM.psa",
+            "executable": "",
+            "selected": false
+        },
         {
             "psa_file": "EN_DatCnv.psa",
             "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\DatCnvW.exe",
             "selected": true
         },
         {
-            "psa_file": "EN_AlignCTD.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\AlignCTDW.exe",
-            "selected": true
-        },
-        {
-            "psa_file": "EN_BinAvg.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\BinAvgW.exe",
-            "selected": true
-        },
-        {
-            "psa_file": "EN_BottleSum.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\BottleSumW.exe",
-            "selected": false
-        },
-        {
-            "psa_file": "EN_CellTM.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\CellTMW.exe",
-            "selected": false
-        },
-        {
             "psa_file": "EN_DatCnv_b.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\DatCnvW.exe",
+            "executable": "",
             "selected": false
         },
         {
             "psa_file": "EN_Derive.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\DeriveW.exe",
+            "executable": "",
             "selected": false
         },
         {
             "psa_file": "EN_SeaPlot_TSOO.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\SeaPlotW.exe",
+            "executable": "",
             "selected": false
         },
         {
             "psa_file": "EN_SeaPlot_TTSS.psa",
-            "executable": "C:/Program Files (x86)/Sea-Bird/SBEDataProcessing-Win32\\SeaPlotW.exe",
+            "executable": "",
             "selected": false
         }
     ]
