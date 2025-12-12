@@ -57,13 +57,9 @@ def update_psa_files():
 
     #print(raw_files_var)
 
-    # Get raw files from GUI variable
-    raw_files = [os.path.abspath(f.strip('"')) for f in raw_files_var if f]
-    #print(raw_files)
-
-    # Get PSA and output directories
-    psa_dir = os.path.abspath(psa_dir_var.get())
-    output_file_dir = os.path.abspath(output_file_var.get())
+    raw_files = [resolve_path(f.strip('"')) for f in raw_files_var if f]
+    psa_dir = resolve_path(psa_dir_var.get())
+    output_file_dir = resolve_path(output_file_var.get())
 
     if not psa_dir or not os.path.isdir(psa_dir):
         messagebox.showerror("PSA Update Error", "No valid PSA directory selected.")
@@ -83,7 +79,7 @@ def update_psa_files():
             raw_dir = os.path.dirname(raw_file)
 
             for psa_file in psa_files:
-                psa_path = os.path.abspath(os.path.join(psa_dir, psa_file))
+                psa_path = resolve_path(os.path.join(psa_dir, psa_file))
 
                 # Match executable type
                 exe_basename = ""
@@ -102,10 +98,10 @@ def update_psa_files():
                     input_dir = output_file_dir
 
                 # Convert all paths to forward slashes to avoid \U errors
-                input_dir = os.path.abspath(input_dir).replace("\\", "/")
-                output_file_dir_clean = os.path.abspath(output_file_dir).replace("\\", "/")
+                input_dir = resolve_path(input_dir).replace("\\", "/")
+                output_file_dir_clean = resolve_path(output_file_dir).replace("\\", "/")
                 xmlcon_file = f"{base_name}.XMLCON"
-                instrument_path = os.path.abspath(os.path.join(raw_dir, xmlcon_file)).replace("\\", "/")
+                instrument_path = resolve_path(os.path.join(raw_dir, xmlcon_file)).replace("\\", "/")
 
                 try:
                     with open(psa_path, "r", encoding="utf-8") as f:
