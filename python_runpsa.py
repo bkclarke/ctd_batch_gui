@@ -520,9 +520,12 @@ def save_config():
 # Main processing function
 def process_data():
     
-    raw_files = raw_files_var  
-    raw_files = [os.path.normpath(f.strip('"')) for f in raw_files if f]  # Normalize paths
-    print("Normalized raw files:", raw_files)
+    raw_files = [
+        resolve_path(f.strip('"'))
+        for f in raw_files_var
+        if f
+    ]
+    print("Resolved raw files:", raw_files)
 
     if not raw_files:
         messagebox.showerror("Error", "No raw files selected.")
@@ -530,8 +533,10 @@ def process_data():
     
     update_psa_files()
     
-    psa_dir = psa_dir_var.get()
-    output_file_dir = output_file_var.get()
+    psa_dir = resolve_path(psa_dir_var.get())
+    print("Using PSA directory:", psa_dir)
+
+    output_file_dir = resolve_path(output_file_var.get())
 
     if not raw_files or not all(os.path.isfile(f) for f in raw_files):
         messagebox.showerror("Error", "Please select one or more valid raw .hex files.")
