@@ -222,13 +222,17 @@ def select_raw_file():
         raw_files_var.extend(files)
         print("Selected raw files:", raw_files_var)
 
-# Function to select the directory containing .psa files
 def select_psa_directory():
-    #print("browse clicked")
     dir_path = filedialog.askdirectory(title="Select Directory Containing .psa Files")
     if dir_path:
         psa_dir_var.set(dir_path)
-        load_psa_files(dir_path)
+        
+        # If a config is loaded, pass it along to load_psa_files
+        if 'config' in globals() and config is not None:
+            load_psa_files(dir_path, config)
+        else:
+            # No config loaded, just load PSA files without config
+            load_psa_files(dir_path)
 
 def edit_xml_file():
     raw_file = raw_file_var.get()
@@ -322,7 +326,7 @@ def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
         messagebox.showerror("Error", f"Failed to open PSA file with {executable_name}: {e.stderr}")
 
 
-def load_psa_files(psa_dir, config):
+def load_psa_files(psa_dir, config=None):
     global psa_dir_path
     psa_dir_path = psa_dir
 
@@ -338,16 +342,17 @@ def load_psa_files(psa_dir, config):
         messagebox.showwarning("No Files Found", "No .psa files found in the selected directory.")
         return
 
-    # Add each PSA file using the scrollable frame method
-    for psa_file in psa_files:
-        # Check if this psa_file is in the config and if so, get the executable and other info
-        matching_psa_data = next((item for item in config.get("psa_files", []) if item.get("psa_file") == psa_file), None)
-        executable = matching_psa_data.get("executable", "") if matching_psa_data else ""
-        selected = matching_psa_data.get("selected", False) if matching_psa_data else False
-
-        # Add the PSA file row to the GUI
-        psa_files_frame.add_psa_file_row(psa_file, executables, executable, selected)
-
+    # If config is available, use it to load PSA files, otherwise skip this part
+    if config:
+        for psa_file in psa_files:
+            matching_psa_data = next((item for item in config.get("psa_files", []) if item.get("psa_file") == psa_file), None)
+            executable = matching_psa_data.get("executable", "") if matching_psa_data else ""
+            selected = matching_psa_data.get("selected", False) if matching_psa_data else False
+            psa_files_frame.add_psa_file_row(psa_file, executables, executable, selected)
+    else:
+        # If no config, just add the PSA files without extra config data
+        for psa_file in psa_files:
+            psa_files_frame.add_psa_file_row(psa_file, executables)
 
 
 # Function to load the last used configuration (only at the start of the app)
