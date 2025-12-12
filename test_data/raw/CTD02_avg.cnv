@@ -331,13 +331,13 @@
 #     </SPAR_Sensor>
 #   </sensor>
 # </Sensors>
-# datcnv_date = Dec 12 2025 15:32:18, 7.26.7.129 [datcnv_vars = 13]
+# datcnv_date = Dec 12 2025 15:38:08, 7.26.7.129 [datcnv_vars = 13]
 # datcnv_in = c:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd02.hex c:\Users\bonny\github\ctd_batch_gui\test_data\raw\CTD02.xmlcon
 # datcnv_skipover = 0
-# alignctd_date = Dec 12 2025 15:32:20, 7.26.7.129
+# alignctd_date = Dec 12 2025 15:38:09, 7.26.7.129
 # alignctd_in = c:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd02.cnv
 # alignctd_adv = c1S/m 0.073                                                                                                                                                                                                         
-# binavg_date = Dec 12 2025 15:32:22, 7.26.7.129
+# binavg_date = Dec 12 2025 15:38:11, 7.26.7.129
 # binavg_in = c:\Users\bonny\github\ctd_batch_gui\test_data\raw\ctd02.cnv
 # binavg_bintype = meters
 # binavg_binsize = 1
