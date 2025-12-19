@@ -296,52 +296,113 @@ def edit_xml_file():
 psa_dir_path = ""  # Global variable to store the selected PSA directory
 
 def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
-    # Build full executable path
-    exe_path = os.path.join(executables_dir_var.get(), executable_name)
-    exe_path = os.path.normpath(exe_path)
+    print("\n========== Sea-Bird Debug Start ==========")
+
+    # --- Executable paths ---
+    exe_dir_input = executables_dir_var.get()
+    print("Executables dir (from GUI):", exe_dir_input)
+
+    exe_path = os.path.normpath(os.path.join(exe_dir_input, executable_name))
     exe_dir = os.path.dirname(exe_path)
 
-    # Validate executable
+    print("Resolved EXE path:", exe_path)
+    print("Resolved EXE dir :", exe_dir)
+    print("EXE exists       :", os.path.isfile(exe_path))
+
+    # --- PSA paths ---
+    print("PSA dir input    :", psa_dir)
+    print("PSA file name    :", psa_file)
+
+    psa_file_path = os.path.normpath(os.path.join(psa_dir, psa_file))
+    print("Resolved PSA path:", psa_file_path)
+    print("PSA exists       :", os.path.isfile(psa_file_path))
+
+    # --- Current working directory before launch ---
+    try:
+        print("Python CWD before run:", os.getcwd())
+    except Exception as e:
+        print("Could not get CWD:", e)
+
+    # --- Validate executable ---
     if not os.path.isfile(exe_path):
         messagebox.showerror(
-            "Error",
+            "Debug Error",
             f"Executable not found:\n{exe_path}"
         )
+        print("ABORT: Executable missing")
         return
 
-    # Build full PSA path
-    psa_file_path = os.path.join(psa_dir, psa_file)
-    psa_file_path = os.path.normpath(psa_file_path)
-
-    # Validate PSA
+    # --- Validate PSA ---
     if not os.path.isfile(psa_file_path):
         messagebox.showerror(
-            "Error",
-            f"PSA file does not exist:\n{psa_file_path}"
+            "Debug Error",
+            f"PSA file not found:\n{psa_file_path}"
         )
+        print("ABORT: PSA missing")
         return
 
-    # Log for debugging
-    print(f"Running: {exe_path} \"{psa_file_path}\"")
-    print(f"Working directory: {exe_dir}")
+    # --- INI file check ---
+    ini_file = os.path.splitext(executable_name)[0] + ".ini"
+    ini_path = os.path.join(exe_dir, ini_file)
 
+    print("Expected INI file:", ini_path)
+    print("INI exists        :", os.path.isfile(ini_path))
+
+    if not os.path.isfile(ini_path):
+        messagebox.showerror(
+            "Sea-Bird Install Error",
+            f"Required INI file not found:\n{ini_path}"
+        )
+        print("ABORT: INI missing")
+        return
+
+    # --- Directory contents (EXE dir) ---
     try:
-        subprocess.run(
-            [exe_path, psa_file_path],
-            cwd=exe_dir,            # CRITICAL: where the INI lives
-            shell=False,            # DO NOT use shell
-            check=True
-        )
-    except subprocess.CalledProcessError as e:
-        messagebox.showerror(
-            "Sea-Bird Error",
-            f"Failed to open PSA file.\n\n{e}"
-        )
+        print("\nFiles in executable directory:")
+        for f in os.listdir(exe_dir):
+            print("  ", f)
     except Exception as e:
+        print("Could not list exe directory:", e)
+
+    # --- Final command ---
+    command = [exe_path, psa_file_path]
+
+    print("\nCommand to run:")
+    print(command)
+    print("Working directory:", exe_dir)
+
+    # --- Launch ---
+    try:
+        result = subprocess.run(
+            command,
+            cwd=exe_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=False
+        )
+
+        print("\nProcess return code:", result.returncode)
+        print("STDOUT:\n", result.stdout)
+        print("STDERR:\n", result.stderr)
+
+        if result.returncode != 0:
+            messagebox.showerror(
+                "Sea-Bird Error",
+                f"Return code: {result.returncode}\n\nSTDERR:\n{result.stderr}"
+            )
+        else:
+            print("Sea-Bird launched successfully.")
+
+    except Exception as e:
+        print("EXCEPTION during subprocess.run()")
+        print(str(e))
         messagebox.showerror(
-            "Unexpected Error",
+            "Subprocess Exception",
             str(e)
         )
+
+    print("========== Sea-Bird Debug End ==========\n")
 
 
 def load_psa_files(psa_dir, config=None):
