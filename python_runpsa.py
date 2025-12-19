@@ -580,65 +580,120 @@ def save_config():
     except Exception as e:
         messagebox.showerror("Error", f"Failed to save configuration: {e}")
 
-# Main processing function
 def process_data():
-    
-    raw_files = list(raw_files_var)
+    print("\n========== PROCESS DATA START ==========")
 
+    # --- Raw files ---
+    raw_files = list(raw_files_var)
+    print("Raw files selected:", raw_files)
 
     if not raw_files:
         messagebox.showerror("Error", "No raw files selected.")
+        print("ABORT: No raw files")
         return
-    
+
+    if not all(os.path.isfile(f) for f in raw_files):
+        messagebox.showerror("Error", "One or more raw .hex files are invalid.")
+        print("ABORT: Invalid raw file(s)")
+        return
+
+    # --- Update PSA files first ---
+    print("\nUpdating PSA files...")
     update_psa_files()
-    
+
+    # --- PSA directory ---
     psa_dir = resolve_path(psa_dir_var.get())
     print("Using PSA directory:", psa_dir)
 
-    output_file_dir = resolve_path(output_file_var.get())
-
-    if not raw_files or not all(os.path.isfile(f) for f in raw_files):
-        messagebox.showerror("Error", "Please select one or more valid raw .hex files.")
-        return
-
     if not os.path.isdir(psa_dir):
-        messagebox.showerror("Error", "Please select a valid directory containing .psa files.")
+        messagebox.showerror("Error", "Invalid PSA directory.")
+        print("ABORT: PSA directory invalid")
         return
+
+    # --- Output directory ---
+    output_file_dir = resolve_path(output_file_var.get())
+    print("Output directory:", output_file_dir)
 
     if not output_file_dir:
-        messagebox.showerror("Error", "Please select an output file path.")
+        messagebox.showerror("Error", "No output directory selected.")
+        print("ABORT: Output directory missing")
         return
 
+    # --- Selected PSA files ---
     selected_psa_files = []
     for frame, psa_file, executable_dropdown, select_var in psa_files_frame.psa_frames:
         if select_var.get():
-            executable = executable_dropdown.get()
-            if executable == "Select Executable Path":
-                messagebox.showerror("Error", f"Please select an executable for {psa_file}")
+            exe_name = executable_dropdown.get()
+            if exe_name == "Select Executable Path":
+                messagebox.showerror("Error", f"No executable selected for {psa_file}")
+                print(f"ABORT: No executable for PSA {psa_file}")
                 return
-            selected_psa_files.append((psa_file, executable))
+            selected_psa_files.append((psa_file, exe_name))
 
+    print("Selected PSA files:", selected_psa_files)
+
+    if not selected_psa_files:
+        messagebox.showerror("Error", "No PSA files selected.")
+        print("ABORT: No PSA files selected")
+        return
+
+    # --- Main processing loop ---
     for raw_file in raw_files:
         base_name = os.path.splitext(os.path.basename(raw_file))[0]
         output_file = f"{base_name}.cnv"
 
-        for psa_file, executable in selected_psa_files:
-            psa_file_path = os.path.join(psa_dir, psa_file)
-            #print(f"Running {executable} for {psa_file} with raw file {raw_file}")
+        print(f"\n--- Processing RAW file: {raw_file} ---")
 
-            exe_basename = os.path.basename(executable).lower()
+        for psa_file, executable_name in selected_psa_files:
+            print(f"\nPSA file: {psa_file}")
+            print(f"Executable name: {executable_name}")
+
+            # --- Resolve executable ---
+            exe_path = os.path.normpath(
+                os.path.join(executables_dir_var.get(), executable_name)
+            )
+            exe_dir = os.path.dirname(exe_path)
+
+            print("Resolved EXE path:", exe_path)
+            print("Resolved EXE dir :", exe_dir)
+            print("EXE exists       :", os.path.isfile(exe_path))
+
+            if not os.path.isfile(exe_path):
+                messagebox.showerror(
+                    "Executable Error",
+                    f"Executable not found:\n{exe_path}"
+                )
+                print("ABORT: Executable missing")
+                return
+
+            # --- Determine input file ---
+            exe_basename = executable_name.lower()
 
             if "datcnvw" in exe_basename:
                 input_file = raw_file
             elif "bottlesumw" in exe_basename:
-                ros_file = f"{base_name}.ros"
-                input_file = os.path.join(output_file_dir, ros_file)
+                input_file = os.path.join(output_file_dir, f"{base_name}.ros")
             else:
                 input_file = os.path.join(output_file_dir, output_file)
 
+            print("Input file:", input_file)
 
+            # --- PSA path ---
+            psa_file_path = os.path.join(psa_dir, psa_file)
+            print("PSA path:", psa_file_path)
+            print("PSA exists:", os.path.isfile(psa_file_path))
+
+            if not os.path.isfile(psa_file_path):
+                messagebox.showerror(
+                    "PSA Error",
+                    f"PSA file not found:\n{psa_file_path}"
+                )
+                print("ABORT: PSA missing")
+                return
+
+            # --- Build command ---
             command = [
-                executable,
+                exe_path,
                 f"/i{input_file}",
                 f"/o{output_file_dir}",
                 f"/f{output_file}",
@@ -646,25 +701,51 @@ def process_data():
                 "/s"
             ]
 
-            # Append /c<XMLCON> only for DatCnvW, Derive, and bottlesum
-            exe_basename = os.path.basename(executable).lower()
-            if "datcnvw" in exe_basename or "derivew" in exe_basename or 'bottlesumw' in exe_basename:
-                xmlcon_file = os.path.splitext(os.path.basename(raw_file))[0].upper() + ".xmlcon"
+            # Append XMLCON if required
+            if any(x in exe_basename for x in ("datcnvw", "derivew", "bottlesumw")):
+                xmlcon_file = base_name.upper() + ".XMLCON"
                 xmlcon_path = os.path.join(os.path.dirname(raw_file), xmlcon_file)
                 command.append(f"/c{xmlcon_path}")
+                print("XMLCON path:", xmlcon_path)
 
+            print("\nCommand to run:")
+            print(command)
+            print("Working directory:", exe_dir)
+
+            # --- Run subprocess ---
             try:
-                result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+                result = subprocess.run(
+                    command,
+                    cwd=exe_dir,              # 🔑 REQUIRED for Sea-Bird INI
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    shell=False               # 🔑 REQUIRED
+                )
+
+                print("Return code:", result.returncode)
+                print("STDOUT:\n", result.stdout)
+                print("STDERR:\n", result.stderr)
+
                 if result.returncode != 0:
-                    messagebox.showerror("Error", f"Error running {executable} for {psa_file}: {result.stderr}")
-                else:
-                    print(f"{executable} ran successfully for {psa_file}: {result.stdout}")
-            except FileNotFoundError:
-                messagebox.showerror("Error", f"Executable not found at: {command[0]}")
+                    messagebox.showerror(
+                        "Sea-Bird Error",
+                        f"Error running {executable_name}:\n\n{result.stderr}"
+                    )
+                    print("ERROR: Sea-Bird returned non-zero code")
+                    return
+
             except Exception as e:
-                messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
+                print("EXCEPTION during subprocess.run()")
+                print(str(e))
+                messagebox.showerror(
+                    "Subprocess Exception",
+                    str(e)
+                )
+                return
 
     messagebox.showinfo("Processing Complete", "Selected .psa files have been processed.")
+    print("========== PROCESS DATA END ==========\n")
 
 
 def apply_theme_to_titlebar(root):
