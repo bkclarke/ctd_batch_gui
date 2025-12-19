@@ -296,42 +296,52 @@ def edit_xml_file():
 psa_dir_path = ""  # Global variable to store the selected PSA directory
 
 def open_in_sbedataprocessing(psa_dir, psa_file, executable_name):
-    # Construct the full path to the executable based on the provided executable name
-    sbedataprocessing_exe = os.path.join(executables_dir_var.get(), executable_name)
-    print(executable_name)
+    # Build full executable path
+    exe_path = os.path.join(executables_dir_var.get(), executable_name)
+    exe_path = os.path.normpath(exe_path)
+    exe_dir = os.path.dirname(exe_path)
 
-    # Check if the executable exists
-    if not os.path.isfile(sbedataprocessing_exe):
-        messagebox.showerror("Error", f"Executable '{executable_name}' not found in the selected executables directory: {executables_dir_var.get()}")
+    # Validate executable
+    if not os.path.isfile(exe_path):
+        messagebox.showerror(
+            "Error",
+            f"Executable not found:\n{exe_path}"
+        )
         return
 
-    # Construct the full path to the PSA file
+    # Build full PSA path
     psa_file_path = os.path.join(psa_dir, psa_file)
-    
-    # Normalize the paths to ensure consistent separators
     psa_file_path = os.path.normpath(psa_file_path)
 
-    # Check if the PSA file exists
+    # Validate PSA
     if not os.path.isfile(psa_file_path):
-        messagebox.showerror("Error", f"The PSA file '{psa_file}' does not exist.")
+        messagebox.showerror(
+            "Error",
+            f"PSA file does not exist:\n{psa_file_path}"
+        )
         return
 
-    # Wrap executable path and PSA file path in quotes to handle spaces
-    psa_file_path = f'"{psa_file_path}"'
+    # Log for debugging
+    print(f"Running: {exe_path} \"{psa_file_path}\"")
+    print(f"Working directory: {exe_dir}")
 
-    # Log the command to check for issues
-    print(f"Running: {executable_name} {psa_file_path}")
-
-    # Launch the executable with the PSA file as an argument
     try:
-        result = subprocess.run([executable_name, psa_file_path], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-        print("Output:", result.stdout)
-        print("Error:", result.stderr)
-    except FileNotFoundError:
-        messagebox.showerror("Error", f"Executable '{executable_name}' not found at: {executable_name}")
+        subprocess.run(
+            [exe_path, psa_file_path],
+            cwd=exe_dir,            # CRITICAL: where the INI lives
+            shell=False,            # DO NOT use shell
+            check=True
+        )
     except subprocess.CalledProcessError as e:
-        # Capture and display any error output
-        messagebox.showerror("Error", f"Failed to open PSA file with {executable_name}: {e.stderr}")
+        messagebox.showerror(
+            "Sea-Bird Error",
+            f"Failed to open PSA file.\n\n{e}"
+        )
+    except Exception as e:
+        messagebox.showerror(
+            "Unexpected Error",
+            str(e)
+        )
 
 
 def load_psa_files(psa_dir, config=None):
