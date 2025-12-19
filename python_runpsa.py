@@ -413,13 +413,10 @@ def load_config_to_gui(config):
     for child in psa_files_frame.scrollable_frame.winfo_children():
         child.destroy()
 
-    # --- Load raw files ---
-    raw_files = config.get("raw_files", [])
+    # --- Raw files are session-only ---
     raw_files_var.clear()
-    raw_files_var.extend(raw_files)
-    raw_file_display_label.config(
-        text=", ".join(os.path.basename(f) for f in raw_files) if raw_files else "No files selected"
-    )
+    raw_file_display_label.config(text="No files selected")
+
 
     # --- Load directories ---
     psa_dir_var.set(config.get("psa_dir", ""))
@@ -480,7 +477,6 @@ def save_config():
         return  # If no file is selected, exit the function
 
     config = {
-        "raw_files": list(raw_files_var),
         "psa_dir": psa_dir_var.get(),
         "executables_dir": executables_dir_var.get(),
         "executables": executables,
@@ -516,12 +512,8 @@ def save_config():
 # Main processing function
 def process_data():
     
-    raw_files = [
-        resolve_path(f.strip('"'))
-        for f in raw_files_var
-        if f
-    ]
-    print("Resolved raw files:", raw_files)
+    raw_files = list(raw_files_var)
+
 
     if not raw_files:
         messagebox.showerror("Error", "No raw files selected.")
@@ -657,28 +649,24 @@ output_file_var = tk.StringVar()
 psa_frames = []
 executables = []
 
-def select_raw_files():
-    files = filedialog.askopenfilenames(title="Select Raw .hex Files", filetypes=[("HEX files", "*.hex")])
+def select_raw_file():
+    files = filedialog.askopenfilenames(
+        title="Select Raw .hex File(s)",
+        filetypes=[("HEX files", "*.hex")]
+    )
     if files:
-        # Update the StringVar for processing
         raw_files_var.clear()
-        raw_files_var.extend(files)
+        raw_files_var.extend(os.path.normpath(os.path.abspath(f)) for f in files)
         raw_file_display_label.config(
             text=", ".join(os.path.basename(f) for f in raw_files_var)
         )
-
-        # Update display label
-        raw_file_display_label.config(
-            text=", ".join(os.path.basename(f) for f in files)
-        )
-
-        #print("Selected raw files:", files)
+        print("Selected raw files:", raw_files_var)
 
 # Layout (unchanged, just for reference)
 tk.Label(root, text="Select Raw .hex File:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
 raw_file_display_label = tk.Label(root, text="No files selected", anchor="w", bg="#2b2b2b", fg="white")
 raw_file_display_label.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
-ttk.Button(root, text="Browse", command=select_raw_files).grid(row=0, column=2, padx=10, pady=5)
+ttk.Button(root, text="Browse", command=select_raw_file).grid(row=0, column=2, padx=10, pady=5)
 
 tk.Label(root, text="Select Directory Containing .psa Files:").grid(row=1, column=0, padx=10, pady=5, sticky="w")
 tk.Entry(root, textvariable=psa_dir_var, width=50).grid(row=1, column=1, padx=10, pady=5, sticky="ew")
